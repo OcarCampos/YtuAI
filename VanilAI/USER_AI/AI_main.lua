@@ -1,11 +1,42 @@
 --------------------------------------------------------------------------------
--- Dr. Azzy's Advanced Homunculus/Mercenary AI
--- Version: 1.56
+-- File: AI_main.lua
 --
--- Written by Dr. Azzy of iRO Chaos
--- This AI is intended for use on official servers only.
--- Permission granted to distribute in unmodified form.
--- You may expand the AI freely through the M_Extra and H_Extra files.
+-- Project: VanilAI
+--
+-- Description:
+--     This file is the core logic engine for the Homunculus AI. It contains the
+--     primary state machine that governs the homunculus's behavior, processing
+--     both player commands and autonomous decisions.
+--
+-- Key Components:
+--   - Initialization (doInit):
+--       Sets up the AI on first run, validates configurations, and loads data.
+--
+--   - Command Processing (ProcessCommand, On<CMD>_CMD):
+--       Handles direct commands from the player (e.g., move, attack).
+--
+--   - State Machine (On<STATE>_ST):
+--       The heart of the AI. Each function corresponds to a specific state
+--       and contains the logic for that behavior.
+--
+-- States:
+--   - IDLE_ST: The default state. The AI decides whether to search for targets,
+--     follow the owner, or perform other idle tasks.
+--   - FOLLOW_ST: Moves the homunculus to the owner's position.
+--   - CHASE_ST: Pursues a target monster.
+--   - ATTACK_ST: Engages a target in combat. This is where the custom
+--     `ChooseSkill()` engine is called to select the best skill.
+--   - KITING_ST: A custom state for kiting enemies when HP is low.
+--   - SUICIDE_ST: A custom state for the economic suicide tactic, where the
+--     homunculus intentionally seeks defeat to save resources.
+--
+-- Custom Features Implemented Here:
+--   - Integration with the priority-based skill engine (`ChooseSkill`).
+--   - Logic for the Flee, Reactive Kiting, and Economic Suicide tactics.
+--
+-- Original Author Credits:
+--     Dr. Azzy's Advanced Homunculus/Mercenary AI (v1.56)
+--     Written by Dr. Azzy of iRO Chaos
 --------------------------------------------------------------------------------
 
 -- NOTE: The following variables are defined here due to a file encoding issue

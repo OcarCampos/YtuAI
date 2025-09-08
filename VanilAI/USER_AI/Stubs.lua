@@ -1,3 +1,18 @@
+--------------------------------------------------------------------------------
+-- File: Stubs.lua
+--
+-- Project: VanilAI
+--
+-- Description:
+--     This file provides empty placeholder functions, or "stubs," for various
+--     hooks within the AI's execution cycle (e.g., OnInit, OnAIstart).
+--
+-- Note:
+--     This design allows for safe customization. Users can implement their own
+--     versions of these functions in H_Extra.lua to add custom logic without
+--     modifying the core AI files, preventing errors if a function is not defined.
+--------------------------------------------------------------------------------
+
 function NewState(state)
 	if state==0 then --replace with the name of your new state, and specify variable for it in extras.lua
 		return OnIDLE_ST() --replace this with your new state function. 

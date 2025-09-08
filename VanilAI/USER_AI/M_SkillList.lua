@@ -1,10 +1,19 @@
--- M_SkillList.lua	v1.50
--- The skill lists are separated because the idiots used the same numbers for homun and merc types!
--- Converted to Lua by Dr. Azzy from
--- Mercenary skill list posted by Neo Saro -and-
--- Homun S skill list ganked from some pserver site.
--- All skill list and skill info values laboriously hand entered by Dr. Azzy
--- This may be distributed and used in AIs freely
+--------------------------------------------------------------------------------
+-- File: M_SkillList.lua
+--
+-- Project: VanilAI
+--
+-- Description:
+--     This file serves as a comprehensive database for all Mercenary skills.
+--     It defines skill IDs and their properties (SP cost, cast time, range).
+--
+-- Note:
+--     This file is NOT USED by the Homunculus AI. It is part of the original
+--     AzzyAI package and is not relevant to the VanilAI project.
+--
+-- Original Author Credits:
+--     Dr. Azzy (v1.50)
+--------------------------------------------------------------------------------
 
 HEAL			= 28
 MS_BASH			= 8201

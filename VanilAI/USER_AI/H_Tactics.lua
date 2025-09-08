@@ -1,3 +1,25 @@
+--------------------------------------------------------------------------------
+-- File: H_Tactics.lua
+--
+-- Project: VanilAI
+--
+-- Description:
+--     This file defines the combat tactics for the Homunculus AI. It contains
+--     a table (`MyTact`) that maps monster IDs to a specific set of behaviors,
+--     allowing for fine-tuned control over how the homunculus engages different
+--     enemies.
+--
+-- Tactic Structure:
+--   MyTact[<Monster_ID>] = {<Attack>, <Skill>, <Kite>, <Cast>, ...}
+--
+--   - <Attack>: The priority of attacking this monster (e.g., TACT_ATTACK_H).
+--   - <Skill>: When to use skills (e.g., SKILL_ALWAYS, SKILL_NEVER).
+--   - <Kite>: When to kite the monster (e.g., KITE_ALWAYS, KITE_NEVER).
+--
+-- Note:
+--     The default tactic (ID 0) is used for any monster not explicitly defined.
+--------------------------------------------------------------------------------
+
 MyTact={}
 MyTact[0]={TACT_ATTACK_H,SKILL_ALWAYS,KITE_NEVER,CAST_REACT,PUSH_NEVER,DEBUFF_NEVER,CLASS_S,RESCUE_NEVER,-1,SNIPE_DISABLE,KS_ALWAYS,1,CHASE_ALWAYS} --Default
 MyTact[13]={TACT_REACT_L,SKILL_NEVER,KITE_NEVER,CAST_REACT,PUSH_NEVER,DEBUFF_NEVER,CLASS_BOTH,RESCUE_NEVER,-1,SNIPE_OK,KS_NEVER,0,CHASE_NORMAL} --Treasure Box

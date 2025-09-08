@@ -1,3 +1,16 @@
+--------------------------------------------------------------------------------
+-- File: M_Extra.lua
+--
+-- Project: VanilAI
+--
+-- Description:
+--     This file is intended for user-defined customizations for the Mercenary AI.
+--
+-- Note:
+--     This file is NOT USED by the Homunculus AI. It is part of the original
+--     AzzyAI package and is not relevant to the VanilAI project.
+--------------------------------------------------------------------------------
+
 -- This is the Extra Options file
 -- NewAutoFriend = 0 -- uncomment this if you're not using AzzyAI for your homun.
 -- AggressiveRelogTracking = 1               -- see documentation

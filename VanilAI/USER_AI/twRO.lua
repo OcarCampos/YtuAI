@@ -1,3 +1,19 @@
+--------------------------------------------------------------------------------
+-- File: twRO.lua
+--
+-- Project: VanilAI
+--
+-- Description:
+--     This script is a compatibility patch designed to address a specific lag
+--     issue reported on the Taiwanese Ragnarok Online (twRO) servers. It works
+--     by intercepting core game commands (Move, Attack, Skill) and re-ordering
+--     them to prevent commands from being dropped due to lag.
+--
+-- Note:
+--     This file is not part of the core AzzyAI logic and may not be necessary
+--     for all servers.
+--------------------------------------------------------------------------------
+
 --twRO lag fix mod for non-AzzyAI AI's. 
 --to install, place in USER_AI, and add dofile("./AI/USER_AI/twRO.lua") to the end of AI.lua (or in another location where it will execute after the function definition for AI())
 --This chops 1 level off of the stack. 

@@ -13,7 +13,7 @@ function	GetMsg (id) end
 function	GetResMsg (id) end
 function	SkillObject (id,level,skill,target) end
 function	SkillGround (id,level,skill,x,y) end
-function	IsMonster (id) end								-- id는 몬스터인가? yes -> 1 no -> 0
+function	IsMonster (id) end								-- Is id a monster? yes -> 1 no -> 0
 
 --]]
 --GetV() first argument--

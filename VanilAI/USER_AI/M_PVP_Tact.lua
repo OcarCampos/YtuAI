@@ -1,3 +1,16 @@
+--------------------------------------------------------------------------------
+-- File: M_PVP_Tact.lua
+--
+-- Project: VanilAI
+--
+-- Description:
+--     This file defines the tactics for Mercenary Player vs. Player (PVP) combat.
+--
+-- Note:
+--     This file is NOT USED by the Homunculus AI. It is part of the original
+--     AzzyAI package and is not relevant to the VanilAI project.
+--------------------------------------------------------------------------------
+
 MyPVPTact={}
 MyPVPTact[0]={TACT_REACT_L,SKILL_ALWAYS,KITE_NEVER,CAST_REACT,PUSH_NEVER,DEBUFF_NEVER,CLASS_S,RESCUE_NEVER}
 MyPVPTact[KOS]={TACT_ATTACK_H,SKILL_ALWAYS,KITE_ALWAYS,CAST_REACT,PUSH_SELF,DEBUFF_NEVER,CLASS_BOTH,RESCUE_NEVER}

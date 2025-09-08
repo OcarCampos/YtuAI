@@ -1,3 +1,24 @@
+--------------------------------------------------------------------------------
+-- File: H_Config.lua
+--
+-- Project: VanilAI
+--
+-- Description:
+--     This is the main configuration file for the Homunculus AI. It allows the
+--     user to customize a wide range of behaviors, from basic combat settings
+--     to the advanced custom features.
+--
+-- Note:
+--     This file is loaded by `AI.lua` and its values override the defaults
+--     set in `Defaults.lua`. All user-facing configuration options should be
+--     defined here.
+--
+-- Custom Options Added:
+--   - V_CapriceMobMin, V_SkillSPMin: For the Smart-Casting System.
+--   - K_ReactiveKiteHP, K_StuckDetection: For the Dynamic Kiting System.
+--   - EnableSuicideTactic, SuicideTimer: For the Economic Suicide Tactic.
+--------------------------------------------------------------------------------
+
 AggroHP                  = 0
 AggroSP                  = 0
 OldHomunType             = 2

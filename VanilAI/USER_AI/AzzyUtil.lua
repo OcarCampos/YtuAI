@@ -1,11 +1,29 @@
--------------------------------
--- This file is part of AzzyAI 1.55
--- If you want to use these functions in your own AI
--- it is reccomended that you use the seperately available
--- version, which does not utilize AAI-specific systems. 
--- Written by Dr. Azzy of iRO Chaos
+--------------------------------------------------------------------------------
+-- File: AzzyUtil.lua
+--
+-- Project: VanilAI
+--
+-- Description:
+--     This is a large utility library containing helper functions used throughout
+--     the AI. It provides a wide range of functionalities, including:
+--         - Mathematical and positional calculations (HP/SP percent, distance).
+--         - Target and enemy evaluation (KS checking, mob counting).
+--         - Tactical information retrieval (GetTact).
+--         - Movement and positioning helpers (BetterMoveToOwner).
+--
+-- Custom Features Implemented Here:
+--   - ChooseSkill(): The core of our priority-based skill engine. It evaluates
+--     all available skills from H_Skills.lua and selects the best one based
+--     on priority and conditions.
+--
+--   - GetDanceCell(): Modified to support the stuck detection logic for the
+--     Dynamic Kiting System.
+--
+-- Original Author Credits:
+--     Dr. Azzy's Utility Library (v1.552)
+--     Written by Dr. Azzy of iRO Chaos
+--------------------------------------------------------------------------------
 AUVersion="1.552"
--------------------------------
 
 
 

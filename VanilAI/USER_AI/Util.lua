@@ -1,4 +1,19 @@
 
+--------------------------------------------------------------------------------
+-- File: Util.lua
+--
+-- Project: VanilAI
+--
+-- Description:
+--     This file provides a set of basic, low-level utility functions that were
+--     part of the original game AI. It includes functions for distance
+--     calculations and a simple list data structure.
+--
+-- Note:
+--     This is a legacy file. While its functions are still used, more advanced
+--     utility functions can be found in `AzzyUtil.lua`.
+--------------------------------------------------------------------------------
+
 require "AI\\Const"
 
 --------------------------------------------

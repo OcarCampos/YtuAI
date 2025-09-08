@@ -1,9 +1,21 @@
--- H_SkillList.lua	v1.50.1
--- Converted to Lua by Dr. Azzy from
--- Mercenary skill list posted by Neo Saro -and-
--- Homun S skill list ganked from some pserver site.
--- All skill list and skill info values laboriously hand entered by Dr. Azzy
--- This may be distributed and used in AIs freely
+--------------------------------------------------------------------------------
+-- File: H_SkillList.lua
+--
+-- Project: VanilAI
+--
+-- Description:
+--     This file serves as a comprehensive database for all homunculus skills.
+--     It defines skill IDs, their properties (SP cost, cast time, range),
+--     and Area of Effect (AoE) data.
+--
+-- Note:
+--     This file is critical for the AI's ability to understand and use skills
+--     correctly. It is referenced by many other scripts, including the skill
+--     engine and tactical decision-making functions.
+--
+-- Original Author Credits:
+--     Dr. Azzy (v1.50.1)
+--------------------------------------------------------------------------------
 
 MS_BASH			= 8201
 MS_MAGNUM		= 8202

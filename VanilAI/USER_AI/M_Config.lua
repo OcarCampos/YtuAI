@@ -1,4 +1,18 @@
 
+--------------------------------------------------------------------------------
+-- File: M_Config.lua
+--
+-- Project: VanilAI
+--
+-- Description:
+--     This is the main configuration file for the Mercenary AI. It allows the
+--     user to customize a wide range of behaviors for mercenaries.
+--
+-- Note:
+--     This file is NOT USED by the Homunculus AI. It is part of the original
+--     AzzyAI package and is not relevant to the VanilAI project.
+--------------------------------------------------------------------------------
+
 AggroHP                  = 60
 AggroSP                  = 0
 OldHomunType			= 3

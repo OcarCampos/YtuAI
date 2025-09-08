@@ -1,5 +1,20 @@
 
 
+--------------------------------------------------------------------------------
+-- File: Const.lua
+--
+-- Project: VanilAI
+--
+-- Description:
+--     This file defines the core constants that map to the game client's
+--     internal values. It includes identifiers for motions, commands, object
+--     properties (V_...), and homunculus/mercenary types.
+--
+-- Note:
+--     This file is based on the original game AI scripts and serves as a
+--     fundamental reference. It should not be modified.
+--------------------------------------------------------------------------------
+
 --  c function
 
 --[[

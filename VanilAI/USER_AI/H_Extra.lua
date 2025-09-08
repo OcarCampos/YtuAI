@@ -1,3 +1,19 @@
+--------------------------------------------------------------------------------
+-- File: H_Extra.lua
+--
+-- Project: VanilAI
+--
+-- Description:
+--     This file is intended for user-defined customizations. You can add your
+--     own functions, override existing ones, or enable advanced features here
+--     without modifying the core AI files.
+--
+-- Note:
+--     This provides a safe way to extend the AI's functionality while ensuring
+--     that your changes are not overwritten by future updates to the main
+--     AI scripts.
+--------------------------------------------------------------------------------
+
 -- This is the Extra Options file
 -- NewAutoFriend = 0 -- uncomment this if you're not using AzzyAI for your mercenary.
 -- AggressiveRelogTracking = 1               -- see documentation

@@ -1,55 +1,65 @@
------------------------------
--- Dr. Azzy's Homunculus AI
--- Written by Dr. Azzy of iRO Loki
--- Permission granted to distribute in unmodified form
--- Please contact me via the iRO Forums if you wish to modify
--- so that we can work together to extend and improve this AI.
------------------------------
-Version="1.55"
+--------------------------------------------------------------------------------
+-- File: AI_M.lua
+--
+-- Project: VanilAI
+--
+-- Description:
+--     This is the primary loader script for the Mercenary AI. It is executed
+--     by the game client when a custom AI is activated for a mercenary.
+--
+-- Note:
+--     This file and its associated Mercenary-specific scripts (M_*.lua) are
+--     NOT USED by the Homunculus AI. They are part of the original AzzyAI
+--     package but are outside the scope of the VanilAI project, which focuses
+--     exclusively on Homunculus AI improvements.
+--
+-- Original Author Credits:
+--     Dr. Azzy's Mercenary AI (v1.54)
+--     Written by Dr. Azzy of iRO Loki
+--------------------------------------------------------------------------------
+Version="1.54" 
 ErrorCode=""
 ErrorInfo=""
 LastSavedDate=""
 TactLastSavedDate=""
-TypeString="H"
+TypeString="M"
+dofile( "./AI/USER_AI/Const_.lua")
+dofile( "./AI/USER_AI/M_SkillList.lua" )
+dofile( "./AI/USER_AI/Defaults.lua")
+dofile( "./AI/USER_AI/AzzyUtil.lua")
+dofile( "./AI/USER_AI/Stubs.lua")
+dofile( "./AI/USER_AI/A_Friends.lua")
+dofile( "./AI/USER_AI/M_Config.lua")
+dofile( "./AI/USER_AI/M_Tactics.lua")
+pcall(function () dofile( "./AI/USER_AI/Mob_ID.lua") end)
+dofile( "./AI/USER_AI/AI_main.lua")
+dofile( "./AI/USER_AI/M_PVP_Tact.lua")
+dofile( "./AI/USER_AI/M_Extra.lua")
 
--- Path to the USER_AI folder, essential for loading configuration files.
-ConfigPath = "./AI/USER_AI/"
-
-dofile("./AI/USER_AI/Const_.lua")
-dofile("./AI/USER_AI/H_SkillList.lua") 
-dofile("./AI/USER_AI/Defaults.lua")
-dofile("./AI/USER_AI/AzzyUtil.lua")
-dofile("./AI/USER_AI/Stubs.lua")
-dofile("./AI/USER_AI/A_Friends.lua")
-dofile("./AI/USER_AI/H_Config.lua")
-dofile("./AI/USER_AI/H_Tactics.lua")
-dofile("./AI/USER_AI/AI_main.lua")
-dofile("./AI/USER_AI/H_PVP_Tact.lua")
-dofile("./AI/USER_AI/H_Avoid.lua")
-dofile("./AI/USER_AI/H_Extra.lua")
 
 function WriteStartupLog(Version,ErrorCode,ErrorInfo)
 	local verspattern="%d.%d%d"
+	OutFile=io.open("AAIStartM.txt","w")
 	if AUVersion==nil then
 		AUVersion="1.30b or earlier"
 		ErrorCode="File version error"
 		ErrorInfo=ErrorInfo.."AzzyUtil.lua no version found"
-	elseif string.gfind(AUVersion,verspattern)()~="1.55" then
+	elseif string.gfind(AUVersion,verspattern)()~="1.53" then
 		ErrorCode="File version error"
 		ErrorInfo=ErrorInfo.."AzzyUtil.lua wrong version "..string.gfind(AUVersion,verspattern)().."\n"
 	end
-	TestFile=io.open("./AI/USER_AI/data/test.txt","w")
+	TestFile=io.open("./AI/USER_AI/data/testM.txt","w") --different name since they'd be potentially running simulaneously if user logged in with homun and merc out
 	if TestFile~=nil then
 		TestFile:close()
 	else
 		ErrorCode="cannot create files in data folder"
 		ErrorInfo=ErrorInfo.." Data folder likely missing. Create folder named 'data' in USER_AI "
 	end
-	if CVersion==nil then
+if CVersion==nil then
 		CVersion="1.30b or earlier"
 		ErrorCode="File version error"
 		ErrorInfo=ErrorInfo.."Const_.lua no version found"
-	elseif string.gfind(CVersion,verspattern)()~="1.55" then
+	elseif string.gfind(CVersion,verspattern)()~="1.53" then
 		ErrorCode="File version error"
 		ErrorInfo=ErrorInfo.."Const_.lua wrong version "..string.gfind(CVersion,verspattern)().."\n"
 	end
@@ -57,7 +67,7 @@ function WriteStartupLog(Version,ErrorCode,ErrorInfo)
 		MainVersion="1.30b or earlier"
 		ErrorCode="File version error"
 		ErrorInfo=ErrorInfo.." AI_main.lua no version found"
-	elseif string.gfind(MainVersion,verspattern)()~="1.55" then
+	elseif string.gfind(MainVersion,verspattern)()~="1.53" then
 		ErrorCode="File version error"
 		ErrorInfo=ErrorInfo.."AI_main.lua wrong version "..string.gfind(MainVersion,verspattern)().."\n"
 	end
@@ -75,15 +85,18 @@ function WriteStartupLog(Version,ErrorCode,ErrorInfo)
 		ErrorInfo=ErrorInfo.." AI_main.lua has been modified or corrupted"
 	end
 	--]]
-	if fsize("./AI/USER_AI/H_Config.lua")==3898 then
+	if fsize("./AI/USER_AI/M_Config.lua")==3017 then
 		ConfigVers="Default: "..LastSavedDate
 	else
 		ConfigVers="Custom, edited "..LastSavedDate
 	end
-	if fsize("./AI/USER_AI/H_Tactics.lua")==5393 then
+	if fsize("./AI/USER_AI/M_Tactics.lua")==547 then
 		TacticVers="Default: "..TactLastSavedDate
 	else
 		TacticVers="Custom, edited "..TactLastSavedDate
+	end	
+	if GetSkillInfo(ML_PIERCE,2,10) > 1 then
+		ErrorCode=ErrorCode.."AI has been modified to use the ranged pierce exploit, this may be illegal on the RO you play, contact your game administrators if you are unsure."
 	end
 	local OutString
 	if ErrorCode=="" then
@@ -91,7 +104,6 @@ function WriteStartupLog(Version,ErrorCode,ErrorInfo)
 	else
 		OutString="AzzyAI (hom) version "..Version.."\nMain version:"..MainVersion.."\nAzzyUtil version:"..AUVersion.."\nConstant version:"..CVersion.."\nConfig: "..ConfigVers.."\nTactics: "..TacticVers.." \nTime: "..os.date("%c").."\nLua Version".._VERSION.."\nError: "..ErrorCode.." "..ErrorInfo
 	end
-	OutFile=io.open("AAIStartH.txt","w")
 	if OutFile == nil then
 		Error("No write permissions for RO folder, please fix permissions on the RO folder in order to use AzzyAI. Version Info: "..OutString)
 	else
@@ -110,4 +122,4 @@ end
 WriteStartupLog(Version,ErrorCode,ErrorInfo)
 -------------------------------
 -- Add no code to this file
----------------------------------
+-------------------------------
