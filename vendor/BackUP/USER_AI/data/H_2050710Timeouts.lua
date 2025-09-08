@@ -1,0 +1,13 @@
+MagTimeout=1534500
+SOffensiveTimeout=10500
+SDefensiveTimeout=10500
+SOwnerBuffTimeout=10500
+GuardTimeout=10500
+QuickenTimeout=11000
+OffensiveOwnerTimeout=10500
+DefensiveOwnerTimeout=10500
+OtherOwnerTimeout=10500
+ShouldStandby=0
+RegenTick[1]=41
+MySpheres=0
+EleanorMode=0
