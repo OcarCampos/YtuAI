@@ -13,7 +13,6 @@ Skills = {
 		type = "AOE_ATTACK",
 		conditions = {
 			min_sp_pct = 20, -- Requires at least 20% SP to cast.
-			min_mob_count = 2, -- Requires at least 3 monsters to be nearby.
 			requires_state = "ATTACK_ST", -- Only use when in the main attack state.
 		}
 	},

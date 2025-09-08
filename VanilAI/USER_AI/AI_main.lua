@@ -43,6 +43,7 @@
 -- that prevents modification of Const_.lua.
 SUICIDE_ST              = 99 -- Custom state for the suicide tactic
 SummonTick              = nil   -- The tick when the homunculus was summoned.
+IsRecovering            = false -- Flag to indicate if the homunculus is in a low-HP recovery state.
 
 -- Reserved command list
 ResCmdList			= List.new()
@@ -571,6 +572,22 @@ end
 	It handles targeting, idle movement, and transitions to other states.
 --]]
 function	OnIDLE_ST ()
+	-- Handle HP Recovery State
+	if IsRecovering then
+		if HPPercent(MyID) >= RecoverHP then
+			TraceAI("Recovery complete. Resuming normal behavior.")
+			IsRecovering = false
+		else
+			TraceAI("In recovery mode. HP is still low. Avoiding combat.")
+			-- While recovering, just follow the owner and do nothing else.
+			local distance = GetDistanceFromOwner(MyID)
+			if (distance > DiagonalDist(FollowStayBack + 1) or distance == -1) then
+				MyState = FOLLOW_ST
+				return OnFOLLOW_ST()
+			end
+			return -- Skip the rest of the idle logic to avoid finding a new target.
+		end
+	end
 	--if ReturnToMoveHold~=0 then 
 	--	MyState=MOVE_CMD_HOLD_ST
 	--	OnMOVE_CMD_HOLD_ST()
@@ -777,7 +794,8 @@ function	OnCHASE_ST ()
 
 	-- Flee if HP is below the configured threshold
 	if FleeHP > 0 and HPPercent(MyID) < FleeHP then
-		TraceAI("CHASE_ST -> FOLLOW_ST: HP is low, fleeing to owner.")
+		TraceAI("CHASE_ST -> FOLLOW_ST: HP is low, fleeing to owner and entering recovery mode.")
+		IsRecovering = true
 		MyState = FOLLOW_ST
 		return OnFOLLOW_ST()
 	end
@@ -1082,7 +1100,8 @@ end
 function OnATTACK_ST ()
 	-- Flee if HP is below the configured threshold
 	if FleeHP > 0 and HPPercent(MyID) < FleeHP then
-		TraceAI("ATTACK_ST -> FOLLOW_ST: HP is low, fleeing to owner.")
+		TraceAI("ATTACK_ST -> FOLLOW_ST: HP is low, fleeing to owner and entering recovery mode.")
+		IsRecovering = true
 		MyState = FOLLOW_ST
 		return OnFOLLOW_ST()
 	end

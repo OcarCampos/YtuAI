@@ -134,7 +134,12 @@ K_ReactiveKiteHP         = 50
 -- When enabled, the AI will attempt to move in a different direction if it gets stuck on an obstacle while kiting.
 -- 1 = on, 0 = off
 -- Default: 1
-K_StuckDetection         = 1 
+K_StuckDetection         = 1
+
+-- The HP percentage at which the homunculus will stop fleeing/recovering and resume normal combat.
+-- This should be higher than FleeHP.
+-- Default: 30
+RecoverHP                = 20 
 
 ----------------------------------------------------
 -- Economic Suicide Tactic
