@@ -14,7 +14,7 @@ RelativeRoute            = 1
 UseCastleDefend          = 0
 CastleDefendThreshold    = 4
 IdleWalkDistance         = 3
-FleeHP                   = 0
+FleeHP                   = 10
 RescueOwnerLowHP         = 40
 LiveMobID                = 0
 
@@ -26,7 +26,7 @@ LiveMobID                = 0
 -- The minimum number of monsters that must be grouped together for the AI to use Caprice.
 -- This prevents wasting SP on single targets.
 -- Default: 3
-V_CapriceMobMin          = 3
+V_CapriceMobMin          = 2
 
 -- The minimum SP percentage required to use any skill.
 -- If SP falls below this, the AI will use basic attacks to conserve SP.
@@ -125,7 +125,7 @@ K_StuckDetection         = 1
 -- Enable or disable the suicide tactic.
 -- 1 = on, 0 = off
 -- Default: 0
-EnableSuicideTactic      = 0
+EnableSuicideTactic      = 1
 
 -- The time in minutes after which the suicide tactic should be activated.
 -- This should be set to just under 30 minutes.
