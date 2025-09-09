@@ -45,6 +45,7 @@ SUICIDE_ST              = 99 -- Custom state for the suicide tactic
 SummonTick              = nil   -- The tick when the homunculus was summoned.
 IsRecovering            = false -- Flag to indicate if the homunculus is in a low-HP recovery state.
 IsSPRecovering          = false -- Flag to indicate if the homunculus is in a low-SP recovery state.
+PlayerCommandOverride    = false -- Flag to override AI safety checks for player commands.
 
 -- Reserved command list
 ResCmdList			= List.new()
@@ -332,17 +333,19 @@ end
 	Handles the ATTACK_OBJECT_CMD command.
 	This is called when the user right-clicks on a monster to attack.
 --]]
-function	OnATTACK_OBJECT_CMD (id)
-	TraceAI ("OnATTACK_OBJECT_CMD")
-	ResetCounters()
-	MySkill = 0
-	MyEnemy = id
-	BypassKSProtect=1
-	if (UseBerserkAttack==1) then
-		BerserkMode=1
-	end
-	MyState = CHASE_ST
-	OnCHASE_ST()
+function OnATTACK_OBJECT_CMD (id)
+    TraceAI ("OnATTACK_OBJECT_CMD")
+    ResetCounters()
+    MySkill = 0
+    MyEnemy = id
+    BypassKSProtect=1
+    -- Allow player commands to override HP recovery mode
+    PlayerCommandOverride = true
+    if (UseBerserkAttack==1) then
+        BerserkMode=1
+    end
+    MyState = CHASE_ST
+    OnCHASE_ST()
 end
 
 
@@ -533,6 +536,7 @@ function	ProcessCommand (msg)
 end
 
 function ResetCounters()
+	PlayerCommandOverride = false
 	MyPState				= 0
 	MyPSkill				= 0
 	MyPEnemy				= 0
@@ -596,9 +600,9 @@ function	OnIDLE_ST ()
 			TraceAI("SP recovery complete. Resuming skill usage.")
 			IsSPRecovering = false
 		else
-			TraceAI("In SP recovery mode. SP is still low. Using basic attacks.")
-			-- While recovering, use basic attacks
-			return
+			TraceAI("In SP recovery mode. SP is still low. Using basic attacks, but still looking for targets.")
+			-- While recovering, use basic attacks but continue looking for targets
+			-- Continue with the rest of the idle logic to allow target selection
 		end
 	end
 	--if ReturnToMoveHold~=0 then 
@@ -806,7 +810,7 @@ function	OnCHASE_ST ()
 	TraceAI ("OnCHASE_ST")
 
 	-- Flee if HP is below the configured threshold
-	if FleeHP > 0 and HPPercent(MyID) < FleeHP then
+	if PlayerCommandOverride == false and FleeHP > 0 and HPPercent(MyID) < FleeHP then
 		TraceAI("CHASE_ST -> FOLLOW_ST: HP is low, fleeing to owner and entering recovery mode.")
 		IsRecovering = true
 		MyState = FOLLOW_ST
@@ -1112,7 +1116,7 @@ end
 
 function OnATTACK_ST ()
 	-- Flee if HP is below the configured threshold
-	if FleeHP > 0 and HPPercent(MyID) < FleeHP then
+	if PlayerCommandOverride == false and FleeHP > 0 and HPPercent(MyID) < FleeHP then
 		TraceAI("ATTACK_ST -> FOLLOW_ST: HP is low, fleeing to owner and entering recovery mode.")
 		IsRecovering = true
 		MyState = FOLLOW_ST

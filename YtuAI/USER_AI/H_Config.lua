@@ -58,8 +58,8 @@ V_SkillSPMin             = 20
 -- The SP percentage the homunculus must recover to before using skills again
 -- after falling below V_SkillSPMin. This prevents toggling between skills and melee.
 -- Should be higher than V_SkillSPMin.
--- Default: 50
-V_SkillSPRecover         = 50
+-- Default: 40
+V_SkillSPRecover         = 40
 
 AttackSkillReserveSP     = 400 
 AutoMobMode              = 2 
@@ -108,8 +108,8 @@ HealSelfHP               = 50
 HealOwnerHP              = 50 
 UseAutoHeal              = 0 
 FollowStayBack           = 2
-StationaryAggroDist      = 8
-MobileAggroDist          = 10
+StationaryAggroDist      = 12
+MobileAggroDist          = 14
 StationaryMoveBounds     = 14
 MobileMoveBounds         = 8
 DoNotUseRest             = 1

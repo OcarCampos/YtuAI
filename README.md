@@ -15,7 +15,7 @@ YtuAI isn't just a minor tweak. It's a significant overhaul to the mechanics of 
 -   **Smart SP Management**: A dynamic, tiered-priority system that allows your homunculus to use skills aggressively at high SP, conservatively at low SP, and reactively in emergencies. No more wasting SP!
 -   **SP Recovery Mode**: To prevent constant toggling between skills and melee attacks when SP is low, the AI will enter a recovery mode and only use basic attacks until SP reaches a configurable threshold.
 -   **Optimized Skill Cooldowns**: The AI is now aware of skill cooldowns, preventing it from spamming abilities and getting stuck in a loop of failed casts. This results in smoother, more reliable combat.
--   **HP-Based Recovery System**: When your homunculus's HP gets dangerously low, it will automatically flee and enter a recovery mode, only re-engaging once it's safe to do so. This dramatically improves survivability.
+-   **HP-Based Recovery System**: When your homunculus's HP gets dangerously low, it will automatically flee and enter a recovery mode, only re-engaging once it's safe to do so. This dramatically improves survivability. Player commands will always override this safety feature, giving you full control when you need it.
 -   **Dynamic Kiting System**: To minimize damage, the AI will automatically kite enemies when its health drops, moving between attacks to stay alive longer.
 -   **Economic Suicide Tactic**: A clever, cost-saving feature that intentionally lets the homunculus be defeated before its timer expires, saving you the expense of a "Seed of Life."
 -   **Aggressive Skill Usage**: We've fine-tuned the logic for skills like `Caprice`, making your homunculus a more proactive and effective damage dealer.
