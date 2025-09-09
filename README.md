@@ -1,12 +1,16 @@
 # YtuAI - An Enhanced Homunculus AI for Ragnarok Online
 
-Welcome to YtuAI, a modern, high-performance Homunculus AI for Ragnarok Online, specifically tailored for the official Latam server. This project is a heavily improved fork of the classic AzzyAI + AI-Dieter, redesigned to provide a smarter, more efficient, and more reliable companion for your adventures.
+YtuAI is a modern, high-performance Homunculus AI for Ragnarok Online, specifically tailored for the official Latam server. This project is a heavily improved fork of the classic AzzyAI + AI-Dieter, redesigned to provide a smarter, more efficient, and more reliable companion for your adventures.
 
 Our goal is to offer a superior AI that works out of the box, with powerful features that make leveling and combat a smoother experience for the alchemist class.
 
+This AI is still in development as the test subject in which is being tested ia a Vanilmirth level 32. 
+
+New releases will be published optimizing the behavior of the AI as the test subject progresses through the game.
+
 ## ✨ Key Features & Improvements
 
-YtuAI isn't just a minor tweak. It's a significant overhaul to the mechanics of the Homunculus. Some of the key enhancements are:
+YtuAI isn't just a minor tweak. It's a significant overhaul to the mechanics of the Homunculus adapted to today's standards and nerfs done to the homunculus as per iRO wiki. Some of the key enhancements are:
 
 -   **Smart SP Management**: A dynamic, tiered-priority system that allows your homunculus to use skills aggressively at high SP, conservatively at low SP, and reactively in emergencies. No more wasting SP!
 -   **Optimized Skill Cooldowns**: The AI is now aware of skill cooldowns, preventing it from spamming abilities and getting stuck in a loop of failed casts. This results in smoother, more reliable combat.
@@ -45,18 +49,22 @@ In the game, type the following command in the chat:
 /hoai
 ```
 
-This command activates the custom AI. You will see your homunculus begin to act on its own based on our configured behavior.
+This command activates the custom AI. You will see your homunculus begin to act on its own based on the pre-configured behavior.
 
 ## 📁 Project Structure (Release)
 
-When we generate a release, the structure will be clean and simple:
-
 -   `YtuAI/`: Contains all the necessary AI files (`AI.lua` and the `USER_AI` folder).
--   `documentation/`: Contains detailed guides on configuration and tactics.
+-   `documentation/`: Contains detailed guides on configuration and tactics for you to configure your homunculus as needed.
+
+## Preconfiguration
+
+YtuAI comes preconfigured for the Vanilmirth homunculus, although the mechanics should work out of the box for other homunculus too. Nonetheless, you can always change the configuration to suit your needs. Read the documentation files to understand where and what to change.
+
+We decided it was best to get rid of the original AzzyAIConfig.exe file due to security concerns some users may have with executable files, but following the documentation should be enough to configure your homunculus to your own liking.
 
 ## 🤝 Credits
 
--   Original AzzyAI created by **Dr. Azzy (Spence Konde)**.
+-   Original AzzyAI created by **Dr. Azzy (Spence Konde)** https://github.com/SpenceKonde/AzzyAI.
 -   Functional configuration (Lava Slide) adjusted by **Eukanhart**.
 
 ## 📜 License
