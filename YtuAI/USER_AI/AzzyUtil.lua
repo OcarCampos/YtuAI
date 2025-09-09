@@ -386,13 +386,18 @@ function GetAggroCount(target)
 	return aggrocount
 end
 
-function GetMobCount(skill,level,target,aggro)
+function GetMobCount(myid,skill,level,target,aggro)
+	-- Safeguard: If the target is not a valid actor, exit immediately.
+	if not target or not Actors[target] then
+		return 0
+	end
+
 	local mobcount=0
 	if skill==0 or level==0 then 
 		return 0
 	end
 	local skillaoe=SkillAOEInfo[skill][1][level]
-	local x,y=GetV(V_POSITION,MyID)
+	local x,y=GetV(V_POSITION,myid)
 	if skillaoe==nil then
 		if skill == ML_BRANDISH then
 			for k,v in pairs (Targets) do
@@ -2884,10 +2889,20 @@ function ChooseSkill()
 		end
 
 		-- If all conditions are met, check priority
-		if conditions_met and skill_data.priority > best_skill.priority then
-			local actual_level = GetSkillLevel(skill_id) -- A helper function we may need to write
-			if actual_level > 0 then
-				best_skill = {id = skill_id, level = actual_level, priority = skill_data.priority}
+		if conditions_met then
+			local current_priority
+			-- Check if priority is a function and execute it to get the dynamic value
+			if type(skill_data.priority) == "function" then
+				current_priority = skill_data.priority()
+			else
+				current_priority = skill_data.priority
+			end
+
+			if current_priority > best_skill.priority then
+				local actual_level = GetSkillLevel(skill_id)
+				if actual_level > 0 then
+					best_skill = {id = skill_id, level = actual_level, priority = current_priority}
+				end
 			end
 		end
 	end

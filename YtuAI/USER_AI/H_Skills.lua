@@ -11,7 +11,12 @@ Skills = {
 	[HVAN_CAPRICE] = {
 		priority = function()
 			local sp_pct = SPPercent(MyID)
-			local mob_count = GetMobCount(HVAN_CAPRICE, GetV(V_SKILLLEVEL, MyID, HVAN_CAPRICE), MyEnemy, 1)
+			local mob_count = 0
+
+			-- Only check for mobs if there is a valid target
+			if MyEnemy and MyEnemy ~= 0 then
+				mob_count = GetMobCount(MyID, HVAN_CAPRICE, GetV(V_SKILLLEVEL, MyID, HVAN_CAPRICE), MyEnemy, 1)
+			end
 
 			-- Emergency override: if mobbed by 3 or more monsters, high priority regardless of SP.
 			if mob_count >= 3 then

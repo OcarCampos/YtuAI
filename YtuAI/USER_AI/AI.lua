@@ -32,6 +32,7 @@ ConfigPath = "./AI/USER_AI/"
 
 dofile("./AI/USER_AI/Const_.lua")
 dofile("./AI/USER_AI/H_SkillList.lua") 
+dofile("./AI/USER_AI/H_Skills.lua")
 dofile("./AI/USER_AI/Defaults.lua")
 dofile("./AI/USER_AI/AzzyUtil.lua")
 dofile("./AI/USER_AI/Stubs.lua")
