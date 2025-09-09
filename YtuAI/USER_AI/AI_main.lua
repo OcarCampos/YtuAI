@@ -44,6 +44,7 @@
 SUICIDE_ST              = 99 -- Custom state for the suicide tactic
 SummonTick              = nil   -- The tick when the homunculus was summoned.
 IsRecovering            = false -- Flag to indicate if the homunculus is in a low-HP recovery state.
+IsSPRecovering          = false -- Flag to indicate if the homunculus is in a low-SP recovery state.
 
 -- Reserved command list
 ResCmdList			= List.new()
@@ -588,6 +589,18 @@ function	OnIDLE_ST ()
 			return -- Skip the rest of the idle logic to avoid finding a new target.
 		end
 	end
+
+	-- Handle SP Recovery State
+	if IsSPRecovering then
+		if SPPercent(MyID) >= V_SkillSPRecover then
+			TraceAI("SP recovery complete. Resuming skill usage.")
+			IsSPRecovering = false
+		else
+			TraceAI("In SP recovery mode. SP is still low. Using basic attacks.")
+			-- While recovering, use basic attacks
+			return
+		end
+	end
 	--if ReturnToMoveHold~=0 then 
 	--	MyState=MOVE_CMD_HOLD_ST
 	--	OnMOVE_CMD_HOLD_ST()
@@ -1104,6 +1117,12 @@ function OnATTACK_ST ()
 		IsRecovering = true
 		MyState = FOLLOW_ST
 		return OnFOLLOW_ST()
+	end
+
+	-- Enter SP recovery mode if SP drops below the minimum threshold
+	if SPPercent(MyID) < V_SkillSPMin then
+		TraceAI("ATTACK_ST: SP is low, entering SP recovery mode.")
+		IsSPRecovering = true
 	end
 
 	TraceAI ("OnATTACK_ST MyEnemy: "..MyEnemy.." MyPos "..formatpos(GetV(V_POSITION,MyID)).." ("..GetV(V_MOTION,MyID)..") enemypos "..formatpos(GetV(V_POSITION,MyEnemy)).." ("..GetV(V_MOTION,MyEnemy)..") MyTarget: "..GetV(V_TARGET,MyID))	

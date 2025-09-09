@@ -35,9 +35,9 @@ RelativeRoute            = 1
 UseCastleDefend          = 0
 CastleDefendThreshold    = 4
 IdleWalkDistance         = 3
-FleeHP                   = 10
-RescueOwnerLowHP         = 40
-LiveMobID                = 0
+FleeHP                   = 20    -- Amount of HP to flee at
+RescueOwnerLowHP         = 40    -- Amount of HP to rescue owner at
+LiveMobID                = 0     -- ID of the mob to live
 
 ----------------------------------------------------
 -- AzzyAI Vanilmirth Leveling Enhancement Settings
@@ -46,7 +46,7 @@ LiveMobID                = 0
 
 -- The minimum number of monsters that must be grouped together for the AI to use Caprice.
 -- This prevents wasting SP on single targets.
--- Default: 3
+-- Default: 2
 V_CapriceMobMin          = 2
 
 -- The minimum SP percentage required to use any skill.
@@ -54,6 +54,12 @@ V_CapriceMobMin          = 2
 -- Set to 0 to disable.
 -- Default: 20
 V_SkillSPMin             = 20
+
+-- The SP percentage the homunculus must recover to before using skills again
+-- after falling below V_SkillSPMin. This prevents toggling between skills and melee.
+-- Should be higher than V_SkillSPMin.
+-- Default: 50
+V_SkillSPRecover         = 50
 
 AttackSkillReserveSP     = 400 
 AutoMobMode              = 2 
@@ -139,7 +145,7 @@ K_StuckDetection         = 1
 -- The HP percentage at which the homunculus will stop fleeing/recovering and resume normal combat.
 -- This should be higher than FleeHP.
 -- Default: 30
-RecoverHP                = 20 
+RecoverHP                = 50 
 
 ----------------------------------------------------
 -- Economic Suicide Tactic

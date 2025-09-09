@@ -13,6 +13,7 @@ New releases will be published optimizing the behavior of the AI as the test sub
 YtuAI isn't just a minor tweak. It's a significant overhaul to the mechanics of the Homunculus adapted to today's standards and nerfs done to the homunculus as per iRO wiki. Some of the key enhancements are:
 
 -   **Smart SP Management**: A dynamic, tiered-priority system that allows your homunculus to use skills aggressively at high SP, conservatively at low SP, and reactively in emergencies. No more wasting SP!
+-   **SP Recovery Mode**: To prevent constant toggling between skills and melee attacks when SP is low, the AI will enter a recovery mode and only use basic attacks until SP reaches a configurable threshold.
 -   **Optimized Skill Cooldowns**: The AI is now aware of skill cooldowns, preventing it from spamming abilities and getting stuck in a loop of failed casts. This results in smoother, more reliable combat.
 -   **HP-Based Recovery System**: When your homunculus's HP gets dangerously low, it will automatically flee and enter a recovery mode, only re-engaging once it's safe to do so. This dramatically improves survivability.
 -   **Dynamic Kiting System**: To minimize damage, the AI will automatically kite enemies when its health drops, moving between attacks to stay alive longer.
@@ -50,6 +51,22 @@ In the game, type the following command in the chat:
 ```
 
 This command activates the custom AI. You will see your homunculus begin to act on its own based on the pre-configured behavior.
+
+## ⚙️ Configuration
+
+YtuAI is highly configurable to suit your playstyle. The main configuration file is `H_Config.lua` located in the `USER_AI` folder. Here are the key files you can modify:
+
+- `H_Config.lua`: Main configuration file where you can adjust parameters like HP/SP thresholds, skill usage, and tactics.
+- `H_Tactics.lua`: Define combat behavior against specific monsters.
+- `H_Skills.lua`: Customize the priority-based skill engine.
+
+Key configuration options include:
+
+- **SP Management**: Adjust `V_SkillSPMin` and `V_SkillSPRecover` to control when the homunculus uses skills and when it recovers.
+- **HP Recovery**: Modify `FleeHP` and `RecoverHP` to change when the homunculus flees and when it resumes combat.
+- **Skill Usage**: Fine-tune skill priorities and conditions in `H_Skills.lua`.
+
+Refer to the detailed documentation in the `documentation/` folder for comprehensive configuration guides.
 
 ## 📁 Project Structure (Release)
 

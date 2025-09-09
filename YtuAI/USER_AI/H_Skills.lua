@@ -23,6 +23,11 @@ Skills = {
 				return 95
 			end
 
+			-- If in SP recovery mode, don't use skills (except in emergencies)
+			if IsSPRecovering then
+				return 0
+			end
+
 			-- Tiered priority based on SP
 			if sp_pct > 70 then
 				return 90 -- Aggressive: High SP, high priority
@@ -34,7 +39,7 @@ Skills = {
 		end,
 		type = "AOE_ATTACK",
 		conditions = {
-			min_sp_pct = 10, -- Lowered the bar, as priority function now manages SP.
+			min_sp_pct = V_SkillSPMin, -- Use the configured minimum SP threshold.
 			requires_state = "ATTACK_ST",
 			-- Cooldown check will be added to the main AI logic.
 		}
