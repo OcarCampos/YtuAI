@@ -1214,6 +1214,14 @@ function OnATTACK_ST ()
 	-- Use the new skill engine to choose a skill
 	MySkill, MySkillLevel = ChooseSkill()
 
+	-- Cooldown Check for Caprice
+	if MySkill == HVAN_CAPRICE then
+		if GetTick() < AutoSkillCooldown[HVAN_CAPRICE] then
+			TraceAI("Caprice is on cooldown. Switching to normal attack.")
+			MySkill = 0 -- Skill is on cooldown, so don't use it.
+		end
+	end
+
 	if (MySkill == 0 and UseSkillOnly ~= 1) then
 		Attack (MyID,MyEnemy)
 		TraceAI("Normal attack vs: "..MyEnemy)
@@ -1222,6 +1230,13 @@ function OnATTACK_ST ()
 			UpdateTimeoutFile()
 		end
 	elseif (MySkill ~=0) then
+		-- Set Cooldown for Caprice after casting
+		if MySkill == HVAN_CAPRICE then
+			local cooldown = (2 + (MySkillLevel * 0.2)) * 1000 -- Calculate cooldown in milliseconds
+			AutoSkillCooldown[HVAN_CAPRICE] = GetTick() + cooldown
+			TraceAI("Caprice used. Cooldown set for " .. (cooldown / 1000) .. " seconds.")
+		end
+
 		TraceAI("Skill Attack: "..MySkill.." target: "..MyEnemy.." level:"..MySkillLevel)
 		SkillTarget=MyEnemy
 		if (MySkill==MA_SHARPSHOOTING and AoEMaximizeTargets==1) then

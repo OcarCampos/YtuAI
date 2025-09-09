@@ -1,31 +1,38 @@
-# Ragnarok Online - Improved Homunculus AI
+# YtuAI - An Enhanced Homunculus AI for Ragnarok Online
 
-This project is dedicated to understanding, documenting, and improving the AI scripts (written in Lua) for the Homunculus companion in the game Ragnarok Online. The goal is to create a powerful, efficient, and highly customizable AI for leveling and general use.
+Welcome to YtuAI, a modern, high-performance Homunculus AI for Ragnarok Online, specifically tailored for the official Latam server. This project is a heavily improved fork of the classic AzzyAI + AI-Dieter, redesigned to provide a smarter, more efficient, and more reliable companion for your adventures.
 
-## Project Goal
+Our goal is to offer a superior AI that works out of the box, with powerful features that make leveling and combat a smoother experience for the alchemist class.
 
-The main objective is to create an enhanced version of a custom AI, now named `VanilAI`, which is based on the popular AzzyAI. This involves:
+## ✨ Key Features & Improvements
 
--   **Understanding** the logic and structure of the AI scripts.
--   **Translating** existing Korean documentation to English.
--   **Creating** new, comprehensive documentation for the improved AI.
--   **Implementing** new features and optimizing existing ones for better performance and usability.
+YtuAI isn't just a minor tweak. It's a significant overhaul to the mechanics of the Homunculus. Some of the key enhancements are:
 
-## Homunculus
-
-This AI is being developed and tested with a **Vanilmirth** homunculus, with the intention of supporting its evolution, **Dieter**.
+-   **Smart SP Management**: A dynamic, tiered-priority system that allows your homunculus to use skills aggressively at high SP, conservatively at low SP, and reactively in emergencies. No more wasting SP!
+-   **Optimized Skill Cooldowns**: The AI is now aware of skill cooldowns, preventing it from spamming abilities and getting stuck in a loop of failed casts. This results in smoother, more reliable combat.
+-   **HP-Based Recovery System**: When your homunculus's HP gets dangerously low, it will automatically flee and enter a recovery mode, only re-engaging once it's safe to do so. This dramatically improves survivability.
+-   **Dynamic Kiting System**: To minimize damage, the AI will automatically kite enemies when its health drops, moving between attacks to stay alive longer.
+-   **Economic Suicide Tactic**: A clever, cost-saving feature that intentionally lets the homunculus be defeated before its timer expires, saving you the expense of a "Seed of Life."
+-   **Aggressive Skill Usage**: We've fine-tuned the logic for skills like `Caprice`, making your homunculus a more proactive and effective damage dealer.
 
 ## 📦 Installation
 
-Our custom AI is a complete package based on AzzyAI. You no longer need to download multiple packages.
+YtuAI is a complete package. You no longer need to download AzzyAI or any other files to get started. Follow the instructions below to install at your local machine.
+
+### Prerequisites
+
+-   **Ragnarok Online**: Make sure you have official Ragnarok Online client installed on your machine. YtuAI was developed for the Latam GNJoy Server.
+-   **Create a back up**: This is utterly important. Make a backup of your official Ragnarok Online AI folder (C:\Gravity\Ragnarok\AI) and keep it safe somewhere you know. In case of any problem with YtuAI you can roll back by replacing the AI folder with the backup.
+
+### Installation
 
 1.  **Copy the AI Loader**
-    -   Copy the `AI.lua` file from the `VanilAI` folder in this project.
+    -   Copy the `AI.lua` file from the `YtuAI` folder in this project.
     -   Paste and **replace** the file in your `C:\Gravity\Ragnarok\AI` directory. This is the loader that will activate our custom AI.
     -   If the `AI` folder does not exist in your Ragnarok directory, create it manually.
 
 2.  **Copy the Custom AI Files**
-    -   Next, copy the entire `USER_AI` folder from this project's `VanilAI` directory.
+    -   Next, copy the entire `USER_AI` folder from this project's `YtuAI` directory.
     -   Paste and **replace** the folder and all its contents into your `C:\Gravity\Ragnarok\AI\USER_AI` directory.
 
 > 💡 This will activate the intelligent behavior of the homunculus with our custom tactics and improvements.
@@ -40,13 +47,12 @@ In the game, type the following command in the chat:
 
 This command activates the custom AI. You will see your homunculus begin to act on its own based on our configured behavior.
 
-## Project Structure
+## 📁 Project Structure (Release)
 
--   `AI-original/`: Contains the default AI scripts from the game client for reference.
--   `VanilAI/`: Contains our custom AI, based on AzzyAI.
--   `vendor/`: Contains third-party code and other external resources.
--   `documentation/`: Contains detailed documentation for AI configuration and tactics.
--   `devlog/`: Contains logs of the development process.
+When we generate a release, the structure will be clean and simple:
+
+-   `YtuAI/`: Contains all the necessary AI files (`AI.lua` and the `USER_AI` folder).
+-   `documentation/`: Contains detailed guides on configuration and tactics.
 
 ## 🤝 Credits
 

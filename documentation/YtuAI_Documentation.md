@@ -1,13 +1,13 @@
-# VanilAI - Comprehensive AI Guide
+# YtuAI - Comprehensive AI Guide
 
-Welcome to the official documentation for VanilAI, an enhanced and customized Homunculus AI for Ragnarok Online, built upon the solid foundation of AzzyAI.
+Welcome to the official documentation for YtuAI, an enhanced and customized Homunculus AI for Ragnarok Online, built upon the solid foundation of AzzyAI.
 
-This guide provides everything you need to know to install, configure, and understand the advanced features of VanilAI.
+This guide provides everything you need to know to install, configure, and understand the advanced features of YtuAI.
 
 ## Table of Contents
 
 1.  [**Installation**](#installation)
-    -   *How to get VanilAI running in your game.*
+    -   *How to get YtuAI running in your game.*
 2.  [**File Structure**](#file-structure)
     -   *An overview of what each file in the AI does.*
 3.  [**Configuration (`H_Config.lua`)**](#configuration)
@@ -26,22 +26,22 @@ This guide provides everything you need to know to install, configure, and under
 
 ## Installation
 
-Installing VanilAI is a straightforward process. Our custom AI is a complete package, so you no longer need to download any other base AI files.
+Installing YtuAI is a straightforward process. Our custom AI is a complete package, so you no longer need to download any other base AI files.
 
 1.  **Copy the AI Loader**
-    -   Navigate to the `VanilAI` folder in this project.
+    -   Navigate to the `YtuAI` folder in this project.
     -   Copy the `AI.lua` file.
     -   Paste and **replace** the file in your Ragnarok Online `AI` directory (e.g., `C:\Gravity\Ragnarok\AI`). This file is the loader that activates our custom AI.
     -   *If the `AI` folder does not exist in your Ragnarok directory, create it manually.*
 
 2.  **Copy the Custom AI Files**
-    -   From the same `VanilAI` folder, copy the entire `USER_AI` folder.
+    -   From the same `YtuAI` folder, copy the entire `USER_AI` folder.
     -   Paste and **replace** the folder and all its contents into your Ragnarok `AI` directory (e.g., `C:\Gravity\Ragnarok\AI\USER_AI`).
 
 3.  **Activate in Game**
     -   Log into Ragnarok Online.
     -   Type the command `/hoai` in the chat.
-    -   Your homunculus will now be running VanilAI!
+    -   Your homunculus will now be running YtuAI!
 
 ---
 
@@ -108,7 +108,24 @@ This is where you can customize the AI's behavior. Below are some of the most im
 
 ## Core AI Systems
 
-This section explains the logic behind the custom features that make VanilAI a smart and efficient leveling partner.
+This section explains the logic behind the custom features that make YtuAI a smart and efficient leveling partner.
+
+### Skill Cooldown Optimization
+
+To prevent the AI from wastefully spamming skills that are on cooldown, YtuAI now includes a cooldown management system. The AI calculates and respects the built-in delay for skills like `Caprice`, ensuring it only attempts to cast them when they are actually available. This results in smoother, more efficient combat and prevents the AI from getting stuck in a loop of failed casting attempts.
+
+### Smart SP Management
+
+Gone are the days of a simple SP check. YtuAI now features a tiered, dynamic priority system for SP management, allowing for much more intelligent resource control. The AI will now behave differently depending on its current SP, and can even override its own rules in an emergency.
+
+Here’s how it works:
+
+-   **Aggressive (SP > 70%)**: When SP is high, the AI will use skills with a high priority, maximizing damage output.
+-   **Balanced (30% < SP <= 70%)**: In this range, the AI balances skill usage with SP conservation, ensuring a steady performance.
+-   **Conservative (SP <= 30%)**: When SP is low, the AI will only use skills if absolutely necessary, preserving resources for critical moments.
+-   **Emergency Override**: If the homunculus is mobbed by three or more enemies, it will automatically assign a high priority to defensive or AOE skills, regardless of its current SP level.
+
+This system ensures that your homunculus is both a powerful attacker and a strategic partner, capable of adapting to any situation.
 
 ### Smart-Casting System
 
@@ -130,7 +147,7 @@ This unique feature is designed to save zeny. A homunculus has a 30-minute lifes
 
 ## Priority-Based Skill Engine
 
-VanilAI uses a flexible, priority-based skill engine to make intelligent decisions about which skill to use in combat. This system is controlled by the `H_Skills.lua` file.
+YtuAI uses a flexible, priority-based skill engine to make intelligent decisions about which skill to use in combat. This system is controlled by the `H_Skills.lua` file.
 
 ### How It Works
 
