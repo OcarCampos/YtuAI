@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- File: H_Tactics.lua
 --
--- Project: VanilAI
+-- Project: YtuAI
 --
 -- Description:
 --     This file defines the combat tactics for the Homunculus AI. It contains

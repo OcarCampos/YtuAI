@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- File: twRO.lua
 --
--- Project: VanilAI
+-- Project: YtuAI
 --
 -- Description:
 --     This script is a compatibility patch designed to address a specific lag

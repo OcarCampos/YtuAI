@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- File: M_Extra.lua
 --
--- Project: VanilAI
+-- Project: YtuAI
 --
 -- Description:
 --     This file is intended for user-defined customizations for the Mercenary AI.

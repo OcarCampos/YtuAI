@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- File: Stubs.lua
 --
--- Project: VanilAI
+-- Project: YtuAI
 --
 -- Description:
 --     This file provides empty placeholder functions, or "stubs," for various

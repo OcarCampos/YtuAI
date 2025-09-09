@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- File: AI_main.lua
 --
--- Project: VanilAI
+-- Project: YtuAI
 --
 -- Description:
 --     This file is the core logic engine for the Homunculus AI. It contains the

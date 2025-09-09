@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- File: M_SkillList.lua
 --
--- Project: VanilAI
+-- Project: YtuAI
 --
 -- Description:
 --     This file serves as a comprehensive database for all Mercenary skills.

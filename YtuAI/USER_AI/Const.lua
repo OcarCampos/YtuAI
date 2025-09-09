@@ -3,7 +3,7 @@
 --------------------------------------------------------------------------------
 -- File: Const.lua
 --
--- Project: VanilAI
+-- Project: YtuAI
 --
 -- Description:
 --     This file defines the core constants that map to the game client's
@@ -56,8 +56,8 @@ V_SP				=	9		-- SP (applies only to homunculus and owner)
 V_MAXHP				=   10		-- Max HP (applies only to homunculus and owner)
 V_MAXSP				=   11		-- Max SP (applies only to homunculus and owner)
 V_MERTYPE		  =		12    -- Mercenary type	
-V_POSITION_APPLY_SKILLATTACKRANGE = 13	-- SkillAttackange�� ������ ��ġ
-V_SKILLATTACKRANGE_LEVEL = 14	-- ���� �� SkillAttackange
+V_POSITION_APPLY_SKILLATTACKRANGE = 13	-- Skill Attack range
+V_SKILLATTACKRANGE_LEVEL = 14	-- Skill Attack range level
 ---------------------------------	
 
 

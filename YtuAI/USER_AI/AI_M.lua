@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- File: AI_M.lua
 --
--- Project: VanilAI
+-- Project: YtuAI
 --
 -- Description:
 --     This is the primary loader script for the Mercenary AI. It is executed

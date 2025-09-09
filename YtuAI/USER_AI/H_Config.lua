@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- File: H_Config.lua
 --
--- Project: VanilAI
+-- Project: YtuAI
 --
 -- Description:
 --     This is the main configuration file for the Homunculus AI. It allows the

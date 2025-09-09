@@ -1,0 +1,31 @@
+# YtuAI Project Rules
+
+## 1. Core Project Details
+- **Project Name**: YtuAI
+- **Language**: Lua
+- **Domain**: Game AI for Ragnarok Online (Homunculus), tailored for the Latam server.
+- **Primary Goal**: To develop and maintain a heavily improved fork of AzzyAI, focusing on superior performance, modern features, and ease of use.
+
+## 2. Development Principles
+- **Clarity and Readability**: Code should be well-commented and easy to understand. Add descriptive headers to all files.
+- **Modularity**: New features should be implemented in a modular way (e.g., the priority-based skill engine).
+- **User-Facing Configuration**: All customizable settings should be exposed in `H_Config.lua` with clear comments.
+- **Iterative Improvement**: As a fork, we will modify core files like `AI_main.lua` and `AzzyUtil.lua` as needed to implement new features and optimizations. All major changes must be documented.
+
+## 3. Key Files & Their Purpose
+- **`AI_main.lua`**: The core state machine. This is where we implement key behavioral changes like cooldowns and recovery systems.
+- **`H_Config.lua`**: The main configuration file for all user-facing settings.
+- **`H_Tactics.lua`**: Defines combat behavior against specific monsters.
+- **`H_Skills.lua`**: The database for the priority-based skill engine. This is where we define skill conditions and dynamic priorities.
+- **`AzzyUtil.lua`**: The main utility library. Contains the `ChooseSkill()` engine.
+- **`documentation/YtuAI_Documentation.md`**: The primary source of truth for project documentation.
+
+## 4. Workflow & Process
+- **Analyze First**: Before making changes, always read the relevant files to understand the existing context.
+- **Document as You Go**: All significant changes must be logged in the daily `devlog` and, when appropriate, added to the main documentation (`documentation/YtuAI_Documentation.md`).
+- **Test Incrementally**: We are working with a live game environment. Changes should be small and incremental to allow for easier testing and debugging.
+
+## 5. Technical Notes
+- The AI is event-driven, based on a state machine (`IDLE_ST`, `CHASE_ST`, etc.).
+- The project includes files for a Mercenary AI (`M_*.lua`), but these are **out of scope** and should not be modified.
+- The `data` directory in the source code should only contain `dummy.txt`. Other files in this folder are generated at runtime by the game and should not be committed to the repository.

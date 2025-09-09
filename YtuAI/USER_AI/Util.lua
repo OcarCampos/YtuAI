@@ -2,7 +2,7 @@
 --------------------------------------------------------------------------------
 -- File: Util.lua
 --
--- Project: VanilAI
+-- Project: YtuAI
 --
 -- Description:
 --     This file provides a set of basic, low-level utility functions that were

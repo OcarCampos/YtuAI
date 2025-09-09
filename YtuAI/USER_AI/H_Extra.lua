@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- File: H_Extra.lua
 --
--- Project: VanilAI
+-- Project: YtuAI
 --
 -- Description:
 --     This file is intended for user-defined customizations. You can add your

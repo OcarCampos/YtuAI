@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- File: AzzyUtil.lua
 --
--- Project: VanilAI
+-- Project: YtuAI
 --
 -- Description:
 --     This is a large utility library containing helper functions used throughout

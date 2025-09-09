@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- File: AI.lua
 --
--- Project: VanilAI
+-- Project: YtuAI
 --
 -- Description:
 --     This is the primary loader script for the Homunculus AI. It is the

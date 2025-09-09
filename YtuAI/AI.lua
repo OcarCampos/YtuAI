@@ -1,2 +1,2 @@
--- This file loads the custom AzzyAI from the USER_AI folder.
+-- This file loads the custom AI from the USER_AI folder.
 dofile("./AI/USER_AI/AI.lua")

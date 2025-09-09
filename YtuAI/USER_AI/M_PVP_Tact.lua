@@ -1,7 +1,7 @@
 --------------------------------------------------------------------------------
 -- File: M_PVP_Tact.lua
 --
--- Project: VanilAI
+-- Project: YtuAI
 --
 -- Description:
 --     This file defines the tactics for Mercenary Player vs. Player (PVP) combat.

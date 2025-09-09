@@ -2,7 +2,7 @@
 --------------------------------------------------------------------------------
 -- File: M_Config.lua
 --
--- Project: VanilAI
+-- Project: YtuAI
 --
 -- Description:
 --     This is the main configuration file for the Mercenary AI. It allows the
