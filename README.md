@@ -107,4 +107,8 @@ Note that this project is in development as the test subject is far from being a
 
 ## 📜 License
 
-Distributed under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) license. You may share and modify this content, but **commercial use is prohibited**..
+Distributed under the [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) license. You may share and modify this content, but **commercial use is prohibited**.
+
+## Releases
+
+-   **v0.1.0** (2025-09-10): Initial release.
