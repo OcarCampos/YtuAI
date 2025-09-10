@@ -14,7 +14,7 @@ This AI version offers a significant overhaul to the mechanics of the Homunculus
 
 Some of the key enhancements are:
 
--   **Auto attack**: The homunculus comes preconfigured to be aggresive by default, being active in the search of monsters to kill. Thus allowing the user to focus in traversing the maps and not focusing in controlling the homunculus and killing monsters with it.
+-   **Auto attack**: The homunculus comes preconfigured to be aggressive by default, being active in the search of monsters to kill. Thus allowing the user to focus in traversing the maps and not focusing in controlling the homunculus and killing monsters with it.
 
 -   **Aggressive Skill Usage**: The logic for skills like `Caprice` has been finetuned, making your homunculus a more proactive and effective damage dealer.
 
