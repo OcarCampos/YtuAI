@@ -2866,54 +2866,61 @@ end
 	based on the current situation.
 --]]
 function ChooseSkill()
-	local best_skill = {id = 0, level = 0, priority = -1}
+    local best_skill = {id = 0, level = 0, priority = -1}
 
-	for skill_id, skill_data in pairs(Skills) do
-		local conditions_met = true
+    for skill_id, skill_data in pairs(Skills) do
+        local conditions_met = true
 
-		-- Check conditions
-		if skill_data.conditions then
-			-- Check SP percentage
-			if skill_data.conditions.min_sp_pct and SPPercent(MyID) < skill_data.conditions.min_sp_pct then
-				conditions_met = false
-			end
+        -- Check if skill is on cooldown
+        if AutoSkillCooldown[skill_id] ~= nil and GetTick() < AutoSkillCooldown[skill_id] then
+            conditions_met = false
+            TraceAI("Skill " .. skill_id .. " is on cooldown for " .. 
+                   math.floor((AutoSkillCooldown[skill_id] - GetTick())/1000) .. " more seconds")
+        end
 
-			-- Check mob count
-			if skill_data.conditions.min_mob_count and GetMobCount(skill_id, 5, MyEnemy, 1) < skill_data.conditions.min_mob_count then
-				conditions_met = false
-			end
+        -- Check other conditions
+        if conditions_met and skill_data.conditions then
+            -- Check SP percentage
+            if skill_data.conditions.min_sp_pct and SPPercent(MyID) < skill_data.conditions.min_sp_pct then
+                conditions_met = false
+            end
 
-			-- Check required state
-			if skill_data.conditions.requires_state and MyState ~= _G[skill_data.conditions.requires_state] then
-				conditions_met = false
-			end
-		end
+            -- Check mob count
+            if skill_data.conditions.min_mob_count and GetMobCount(skill_id, 5, MyEnemy, 1) < skill_data.conditions.min_mob_count then
+                conditions_met = false
+            end
 
-		-- If all conditions are met, check priority
-		if conditions_met then
-			local current_priority
-			-- Check if priority is a function and execute it to get the dynamic value
-			if type(skill_data.priority) == "function" then
-				current_priority = skill_data.priority()
-			else
-				current_priority = skill_data.priority
-			end
+            -- Check required state
+            if skill_data.conditions.requires_state and MyState ~= _G[skill_data.conditions.requires_state] then
+                conditions_met = false
+            end
+        end
 
-			if current_priority > best_skill.priority then
-				local actual_level = GetSkillLevel(skill_id)
-				if actual_level > 0 then
-					best_skill = {id = skill_id, level = actual_level, priority = current_priority}
-				end
-			end
-		end
-	end
+        -- If all conditions are met, check priority
+        if conditions_met then
+            local current_priority
+            -- Check if priority is a function and execute it to get the dynamic value
+            if type(skill_data.priority) == "function" then
+                current_priority = skill_data.priority()
+            else
+                current_priority = skill_data.priority
+            end
 
-	if best_skill.id ~= 0 then
-		TraceAI("Skill Engine chose: "..best_skill.id.." (Level "..best_skill.level..")")
-		return best_skill.id, best_skill.level
-	else
-		return 0, 0
-	end
+            if current_priority > best_skill.priority then
+                local actual_level = GetSkillLevel(skill_id)
+                if actual_level > 0 then
+                    best_skill = {id = skill_id, level = actual_level, priority = current_priority}
+                end
+            end
+        end
+    end
+
+    if best_skill.id ~= 0 then
+        TraceAI("Skill Engine chose: "..best_skill.id.." (Level "..best_skill.level..")")
+        return best_skill.id, best_skill.level
+    else
+        return 0, 0
+    end
 end
 
 -- Helper function to get the actual level of a skill.

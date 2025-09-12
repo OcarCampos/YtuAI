@@ -42,7 +42,10 @@ Skills = {
 			-- min_sp_pct = V_SkillSPMin, -- Use the configured minimum SP threshold.
 			requires_state = "ATTACK_ST",
 			-- Cooldown check will be added to the main AI logic.
-		}
+		},
+		cooldown = function(level)
+            return (2 + (level * 0.2)) * 1000 -- Calculate cooldown in milliseconds
+        end
 	},
 
 	-- Add other skills here as we expand the system...

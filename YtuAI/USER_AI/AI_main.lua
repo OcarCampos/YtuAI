@@ -41,7 +41,17 @@
 
 -- NOTE: The following variables are defined here due to a file encoding issue
 -- that prevents modification of Const_.lua.
+
+-- Suicide state variables
 SUICIDE_ST              = 99 -- Custom state for the suicide tactic
+SUICIDE_ATTACK_SUBSTATE = 1
+SUICIDE_WAIT_SUBSTATE = 2
+SuicideSubState = SUICIDE_ATTACK_SUBSTATE
+SuicideWaitStart = 0
+SuicideWaitDuration = 10000 -- 10 seconds in milliseconds
+SuicideAttackCount = 0
+
+-- Other variables
 SummonTick              = nil   -- The tick when the homunculus was summoned.
 IsRecovering            = false -- Flag to indicate if the homunculus is in a low-HP recovery state.
 IsSPRecovering          = false -- Flag to indicate if the homunculus is in a low-SP recovery state.
@@ -187,6 +197,7 @@ function doInit(myid)
 	UpdateTimeoutFile()
 	DoneInit=1
 end
+
 function AdjustCapriceLevel()
 	local msp=GetV(V_MAXSP,MyID)
 	if msp < 30 and VanCapriceLevel==nil then 
@@ -201,6 +212,7 @@ function AdjustCapriceLevel()
 		end
 	end
 end
+
 function loadtimeouts()
 	if IsHomun(MyID)==1 then
 		dofile(ConfigPath.."data/H_"..GetV(V_OWNER,MyID).."Timeouts.lua")
@@ -220,7 +232,6 @@ end
 --### Friend the merc/homun - old one  ###
 --### by Misch, new one by Dr. Azzy    ###
 --########################################
-
 if (AssumeHomun==1) then
 	if (NewAutoFriend==0) then
 		ff = {}
@@ -244,6 +255,7 @@ if (AssumeHomun==1) then
 		TraceAI("Setting NeedToDoAutoFriend")
 	end
 end
+
 --------------------------------------------------------------------------------
 -- COMMAND PROCESSING
 --------------------------------------------------------------------------------
@@ -376,7 +388,6 @@ end
 	In practice, this command is never sent by the client, so this is legacy code.
 --]]
 function	OnPATROL_CMD (x,y)
-
 	TraceAI ("OnPATROL_CMD")
 	logappend("AAI_ERROR","PATROL_CMD sent! This should NEVER HAPPEN!")
 	MyPatrolX , MyPatrolY = GetV (V_POSITION,MyID)
@@ -394,7 +405,6 @@ end
 	In practice, this command is never sent by the client, so this is legacy code.
 --]]
 function	OnHOLD_CMD ()
-
 	TraceAI ("OnHOLD_CMD")
 	logappend("AAI_ERROR","HOLD_CMD sent! This should NEVER HAPPEN!")
 	MyDestX = 0
@@ -412,7 +422,6 @@ end
 	This is called when the user uses a skill on a monster.
 --]]
 function	OnSKILL_OBJECT_CMD (level,skill,id)
-
 	TraceAI ("OnSKILL_OBJECT_CMD"..skill.." "..id.." "..level)
 	ResetCounters()
 	if skill==MH_PAIN_KILLER and IsPlayer(id)==1 and PainkillerFriends~=0 and id~=GetV(V_OWNER,MyID) then
@@ -493,18 +502,13 @@ function	OnFOLLOW_CMD ()
 		MySkill = 0
 		TraceAI ("FOLLOW_CMD_ST --> IDLE_ST")
 	end
-
 end
-
-
-
 
 --[[
 	Processes a command from the game client.
 	It takes a message table as input and calls the appropriate On... function.
 --]]
 function	ProcessCommand (msg)
-
 	if	(msg[1] == MOVE_CMD) then
 		TraceAI ("MOVE_CMD")
 		OnMOVE_CMD (msg[2],msg[3])
@@ -569,7 +573,6 @@ end
 --------------------------------------------------------------------------------
 -- STATE PROCESSING
 --------------------------------------------------------------------------------
-
 
 --[[
 	Handles the IDLE_ST state.
@@ -1116,8 +1119,6 @@ function	OnCHASE_ST ()
 end
 
 
-
-
 function OnATTACK_ST ()
 	-- Flee if HP is below the configured threshold
 	if PlayerCommandOverride == false and FleeHP > 0 and HPPercent(MyID) < FleeHP then
@@ -1241,13 +1242,8 @@ function OnATTACK_ST ()
 	-- Use the new skill engine to choose a skill
 	MySkill, MySkillLevel = ChooseSkill()
 
-	-- Cooldown Check for Caprice
-	if MySkill == HVAN_CAPRICE then
-		if GetTick() < AutoSkillCooldown[HVAN_CAPRICE] then
-			TraceAI("Caprice is on cooldown. Switching to normal attack.")
-			MySkill = 0 -- Skill is on cooldown, so don't use it.
-		end
-	end
+	-- The cooldown check is now handled in ChooseSkill(
+
 
 	if (MySkill == 0 and UseSkillOnly ~= 1) then
 		Attack (MyID,MyEnemy)
@@ -1257,11 +1253,11 @@ function OnATTACK_ST ()
 			UpdateTimeoutFile()
 		end
 	elseif (MySkill ~=0) then
-		-- Set Cooldown for Caprice after casting
-		if MySkill == HVAN_CAPRICE then
-			local cooldown = (2 + (MySkillLevel * 0.2)) * 1000 -- Calculate cooldown in milliseconds
-			AutoSkillCooldown[HVAN_CAPRICE] = GetTick() + cooldown
-			TraceAI("Caprice used. Cooldown set for " .. (cooldown / 1000) .. " seconds.")
+		-- Set cooldown for the skill using the formula from H_Skills.lua
+		if Skills[MySkill] and type(Skills[MySkill].cooldown) == "function" then
+			local cooldown = Skills[MySkill].cooldown(MySkillLevel)
+			AutoSkillCooldown[MySkill] = GetTick() + cooldown
+			TraceAI(GetSkillName(MySkill) .. " used. Cooldown set for " .. (cooldown / 1000) .. " seconds.")
 		end
 
 		TraceAI("Skill Attack: "..MySkill.." target: "..MyEnemy.." level:"..MySkillLevel)
@@ -1724,7 +1720,6 @@ end
 -------------------
 
 function	OnMOVE_CMD_ST ()
-
 	TraceAI ("OnMOVE_CMD_ST")
 	if GetDistanceAPR(GetV(V_OWNER,MyID),MyMoveX,MyMoveY) > 15 then
 		TraceAI("OnMOVE_CMD_ST -> IDLE_ST: Attempt to move to location off screen")
@@ -1753,7 +1748,6 @@ function	OnMOVE_CMD_ST ()
 end
 
 function	OnMOVE_CMD_HOLD_ST ()
-	
 	TraceAI ("OnMOVE_CMD_HOLD_ST")
 	MySkillUsedCount		= 0
 	ChaseGiveUpCount		= 0
@@ -1799,7 +1793,6 @@ end
 
 function OnSTOP_CMD_ST ()
 
-
 end
 
 
@@ -1807,7 +1800,6 @@ end
 
 function OnATTACK_OBJECT_CMD_ST ()
 
-	
 
 end
 
@@ -1899,9 +1891,6 @@ function OnHOLD_CMD_ST ()
 
 end
 
-
-
-
 function OnSKILL_OBJECT_CMD_ST ()
 	if IsInAttackSight(MyID,MyEnemy,MySkill,MySkillLevel) then
 		DoSkill(MySkill,MySkillLevel,MyEnemy)
@@ -1934,9 +1923,6 @@ function OnSKILL_OBJECT_CMD_ST ()
 	
 end
 
-
-
-
 function OnSKILL_AREA_CMD_ST ()
 
 	TraceAI ("OnSKILL_AREA_CMD_ST")
@@ -1961,34 +1947,96 @@ function OnSKILL_AREA_CMD_ST ()
 end
 
 
-
-
-
-
-
 --------------------------------------------------------------------------------
 -- SUICIDE STATE
 --------------------------------------------------------------------------------
 
 --[[
-	Handles the SUICIDE_ST state.
-	This state is triggered when the homunculus has been alive for a configured
-	duration. It will intentionally move towards the nearest monster to get
-	defeated, saving the owner from having to use a "Seed of Life".
+    Handles the SUICIDE_ST state.
+    This state is triggered when the homunculus has been alive for a configured
+    duration. It implements a pattern of attacking once, then waiting, to
+    intentionally get defeated by monsters while avoiding killing them.
 --]]
 function OnSUICIDE_ST()
-    TraceAI("OnSUICIDE_ST: Time to die.")
-
-    -- Find the nearest monster
-    local nearest_monster = GetNearestEnemy(MyID, 14, 1) 
-
-    if nearest_monster ~= 0 then
-        local mx, my = GetV(V_POSITION, nearest_monster)
-        TraceAI("Moving to monster " .. nearest_monster .. " at (" .. mx .. ", " .. my .. ") to be defeated.")
-        Move(MyID, mx, my)
+    -- If we're in the waiting sub-state
+    if SuicideSubState == SUICIDE_WAIT_SUBSTATE then
+        -- Check if we've waited long enough
+        if GetTick() - SuicideWaitStart >= SuicideWaitDuration then
+            -- Switch back to attack mode
+            SuicideSubState = SUICIDE_ATTACK_SUBSTATE
+            TraceAI("OnSUICIDE_ST: Wait complete. Switching to attack mode.")
+        else
+            -- Continue waiting
+            TraceAI("OnSUICIDE_ST: Waiting... " .. math.floor((GetTick() - SuicideWaitStart) / 1000) .. 
+                   " of " .. (SuicideWaitDuration / 1000) .. " seconds elapsed.")
+            return
+        end
+    end
+    
+    -- We're in attack mode, find a target
+    local object = SelectEnemy(GetEnemyList(MyID, 1))
+    
+    if object ~= 0 then
+        -- Found a target
+        MyEnemy = object
+        TraceAI("OnSUICIDE_ST: Found target " .. MyEnemy .. " for suicide attack.")
+        
+        -- Check if we're in attack range
+        if IsInAttackSight(MyID, MyEnemy) then
+            -- We're in range, perform a single attack
+            TraceAI("OnSUICIDE_ST: Performing suicide attack.")
+            
+            -- Use a weak attack or skill
+            local homuntype = GetV(V_HOMUNTYPE, MyID)
+            if homuntype == 0 and GetV(V_SKILLATTACKRANGE, MyID, HVAN_CAPRICE) > 1 then
+                -- It's a Vanilmirth with Caprice
+                -- Use Caprice level 1 for a weaker attack
+                local level = 1
+                SkillObject(MyID, level, HVAN_CAPRICE, MyEnemy)
+                TraceAI("OnSUICIDE_ST: Used Caprice level 1 for suicide attack.")
+            else
+                -- Use a basic attack for other homunculus types
+                Attack(MyID, MyEnemy)
+                TraceAI("OnSUICIDE_ST: Used basic attack for suicide attack.")
+            end
+            
+            -- Switch to waiting mode
+            SuicideSubState = SUICIDE_WAIT_SUBSTATE
+            SuicideWaitStart = GetTick()
+            SuicideAttackCount = SuicideAttackCount + 1
+            TraceAI("OnSUICIDE_ST: Switching to wait mode. Attack count: " .. SuicideAttackCount)
+        else
+            -- Move closer to the target
+            local tx, ty = GetV(V_POSITION, MyEnemy)
+            Move(MyID, tx, ty)
+            TraceAI("OnSUICIDE_ST: Moving to target at (" .. tx .. ", " .. ty .. ").")
+        end
     else
-        -- If no monsters are around, just stand still and wait.
-        TraceAI("No monsters nearby to assist with suicide. Waiting.")
+        -- No targets found, try to find any monster
+        local actors = GetActors()
+        local nearest_monster = 0
+        local nearest_distance = 999
+        
+        for i, v in ipairs(actors) do
+            if IsMonster(v) == 1 then
+                local distance = GetDistanceA(MyID, v)
+                if distance < nearest_distance then
+                    nearest_monster = v
+                    nearest_distance = distance
+                end
+            end
+        end
+        
+        if nearest_monster ~= 0 then
+            -- Found a monster, move towards it
+            local mx, my = GetV(V_POSITION, nearest_monster)
+            Move(MyID, mx, my)
+            TraceAI("OnSUICIDE_ST: Moving to nearest monster at (" .. mx .. ", " .. my .. ").")
+        else
+            -- No monsters found, follow owner and wait
+            TraceAI("OnSUICIDE_ST: No monsters found. Following owner.")
+            BetterMoveToOwner(MyID, FollowStayBack)
+        end
     end
 end
 
@@ -3235,7 +3283,12 @@ dofile(ConfigPath.."H_Skills.lua")
 function AI(myid)
 	-- Economic Suicide Tactic Check
 	if EnableSuicideTactic == 1 and SummonTick and (GetTick() - SummonTick > SuicideTimer * 60000) then
+		-- Reset suicide state variables when entering suicide mode
 		MyState = SUICIDE_ST
+		SuicideSubState = SUICIDE_ATTACK_SUBSTATE
+		SuicideWaitStart = 0
+		SuicideAttackCount = 0
+		TraceAI("Entering suicide mode after " .. math.floor((GetTick() - SummonTick) / 60000) .. " minutes.")
 	end
 
 	MyID = myid
