@@ -39,7 +39,7 @@ Skills = {
 		end,
 		type = "AOE_ATTACK",
 		conditions = {
-			min_sp_pct = V_SkillSPMin, -- Use the configured minimum SP threshold.
+			-- min_sp_pct = V_SkillSPMin, -- Use the configured minimum SP threshold.
 			requires_state = "ATTACK_ST",
 			-- Cooldown check will be added to the main AI logic.
 		}
