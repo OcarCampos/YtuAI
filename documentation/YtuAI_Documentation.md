@@ -86,7 +86,6 @@ This is where you can customize the AI's behavior. Below are some of the most im
 
 ### General Combat
 
--   **`AggroHP`**: The HP percentage the homunculus must be *above* to actively seek out and attack monsters. If its HP is below this, it will only fight in self-defense or to protect you. *(Default: 0)*
 -   **`FleeHP`**: If the homunculus's HP drops *below* this percentage during combat, it will stop fighting and run back to you. *(Default: 10)*
 -   **`RecoverHP`**: After fleeing, the homunculus will remain passive and avoid combat until its HP is *at or above* this percentage. This should be set higher than `FleeHP`. *(Default: 30)*
 
@@ -112,7 +111,18 @@ This section explains the logic behind the custom features that make YtuAI a sma
 
 ### Skill Cooldown Optimization
 
-To prevent the AI from wastefully spamming skills that are on cooldown, YtuAI now includes a cooldown management system. The AI calculates and respects the built-in delay for skills like `Caprice`, ensuring it only attempts to cast them when they are actually available. This results in smoother, more efficient combat and prevents the AI from getting stuck in a loop of failed casting attempts.
+YtuAI features a cooldown management system that prevents the AI from wastefully spamming skills. The system has two key components:
+
+1. **Formula-Based Cooldowns**: Each skill in `H_Skills.lua` can define a custom cooldown formula based on existant documentation of the game. For example, Caprice's cooldown is calculated as 2 + (Skill Level × 0.2) seconds according to [iRo Wiki](https://irowiki.org/wiki/Caprice). This has been integrated into the AI mechanics to prevent the spamming of this skill. As more skills are added to the configuration file, the iRo wiki will be the source for the configuration of these delays. 
+
+2. **Intelligent Cooldown Checking**: The AI checks cooldowns at multiple points:
+   - Before selecting a skill in the `ChooseSkill()` function
+   - Before attempting to use a skill in `GetAtkSkill()`
+   - Before executing a skill in `DoSkill()`
+
+Additionally, the AI will not attempt to cast skills when the homunculus is out of sight of the owner, preventing unnecessary "Can't cast skill" messages and improving overall performance.
+
+This comprehensive approach ensures smooth, efficient combat and prevents the AI from getting stuck in loops of failed casting attempts.
 
 ### Smart SP Management
 

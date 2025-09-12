@@ -4,8 +4,6 @@ This file contains all the settings to configure your homunculus's behavior. Bel
 
 ## Basic Settings
 
--   **`AggroHP`**: The HP percentage at which the homunculus will consider attacking monsters on its own. Set to `0` to disable.
--   **`AggroSP`**: The SP percentage at which the homunculus will consider attacking monsters on its own. Set to `0` to disable.
 -   **`OldHomunType`**: The type of the homunculus before it becomes a Homunculus S. This is used for some legacy skill checks.
 -   **`UseSkillOnly`**: If set to `1`, the homunculus will only use skills and never basic attacks. `UseAttackSkill` must also be `1`.
 -   **`UseAttackSkill`**: If set to `1`, the homunculus will use skills in combat.
@@ -25,7 +23,6 @@ This is a starting point for the documentation. I will continue to add more sect
 
 ## Auto-Mob and Auto-Combo Settings
 
--   **`AttackSkillReserveSP`**: The amount of SP to reserve. The homunculus will not use attack skills if its SP falls below this value.
 -   **`AutoMobMode`**: Controls how the homunculus mobs monsters. `0` disables it, `1` mobs for the owner, and `2` mobs for itself.
 -   **`AutoMobCount`**: The number of monsters that need to be present before the homunculus starts mobbing.
 -   **`AutoComboMode`**: If set to `1`, enables the use of combo skills.
@@ -38,7 +35,7 @@ This section controls the usage of skills specific to Homunculus S types.
 
 -   **`UseHomunSSkillChase`**: If set to `1`, the homunculus can use its special skill while chasing.
 -   **`UseHomunSSkillAttack`**: If set to `1`, the homunculus can use its special skill while attacking.
--   **`AutoSkillDelay`**: The delay in milliseconds between automatic skill uses.
+-   **`AutoSkillDelay`**: Fixed delay in milliseconds added to skill casting. This is separate from the cooldown system.
 -   **`AoEMaximizeTargets`**: If set to `1`, the homunculus will try to position itself to hit the maximum number of targets with its AoE skills.
 -   **`CastTimeRatio`**: A multiplier for skill cast times. Can be used to adjust for cast time reductions.
 
