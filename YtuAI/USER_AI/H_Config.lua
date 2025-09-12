@@ -87,7 +87,7 @@ AutoComboSpheres        = 10
 --------------------------------
 UseHomunSSkillChase     = 0
 UseHomunSSkillAttack    = 1 
-AutoSkillDelay          = 200 -- if we have a smart-casting system, we can remove this
+-- AutoSkillDelay          = 200 -- if we have a smart-casting system, we can remove this
 AoEMaximizeTargets      = 0
 CastTimeRatio           = .80
 --------------------------------
@@ -165,11 +165,11 @@ UseAutoHeal             = 0
 --------------------------------
 --Movement & Positioning--
 --------------------------------
-FollowStayBack          = 3
-StationaryAggroDist     = 8
-MobileAggroDist         = 12
+FollowStayBack          = 5
+StationaryAggroDist     = 14
+MobileAggroDist         = 16
 StationaryMoveBounds    = 12
-MobileMoveBounds        = 8
+MobileMoveBounds        = 16
 DoNotUseRest            = 1  -- what is the rest state?
 RestXOff                = 2
 RestYOff                = 0	
@@ -237,7 +237,7 @@ SuicideTimer             = 20
 DefendStandby            = 1 
 StickyStandby            = 0 
 SpawnDelay               = 500
-AutoSkillDelay           = 200  -- not in configuration file. Must review logic, we should introduce delays specific for each skill
+AutoSkillDelay           = 200  -- Fixed delay added to skill casting. Different from the cooldown system.
 StandbyFriending         = 1  
 MirAIFriending           = 0  
 UseAvoid                 = 0  -- does this work with H_Avoid.lua?

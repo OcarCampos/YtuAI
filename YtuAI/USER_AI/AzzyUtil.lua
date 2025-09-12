@@ -1935,14 +1935,16 @@ function GetAtkSkill(myid)
 		end
 		if (homuntype==0) then -- It's a vani!
 			skill=HVAN_CAPRICE
-			if GetTick() < AutoSkillCooldown[skill] then
-				level=0
-				skill=0
-			elseif (VanCapriceLevel==nil) then
-				level=5
-			else
-				level=VanCapriceLevel
-			end
+			 -- Check cooldown
+			 if GetTick() < AutoSkillCooldown[skill] then
+                TraceAI("Caprice on cooldown for " .. math.floor((AutoSkillCooldown[skill] - GetTick())/1000) .. " more seconds")
+                level=0
+                skill=0
+            elseif (VanCapriceLevel==nil) then
+                level=5
+            else
+                level=VanCapriceLevel
+            end
 		elseif	(homuntype==3) then -- It's a filer!
 			skill=HFLI_MOON
 			if GetTick() < AutoSkillCooldown[skill] then
@@ -2534,6 +2536,14 @@ function KiteOK(myid)
 end
 
 function DoSkill(skill,level,target,mode,targx,targy)
+	-- To avoid casting skills if out of sight of owner
+	local owner = GetV(V_OWNER,MyID)
+    if IsOutOfSight(MyID, owner) then
+        TraceAI("DoSkill: Skill " .. skill .. " not used - homunculus is out of sight of owner")
+        logappend("AAI_COOLDOWN", "Skill " .. skill .. " not used - homunculus is out of sight of owner")
+        return 0
+    end
+
 	TraceAI("doskill called skill:"..skill.."level:"..level.."target"..target)
 	if skill==0 or level==0 or skill==nil or level==nil then
 		logappend("AAI_ERROR","doskill called skill:"..skill.."level:"..level.."target"..target.."mode"..mode.."state "..MyState.."pstate "..MyPState)
@@ -2570,7 +2580,8 @@ function DoSkill(skill,level,target,mode,targx,targy)
 	local t=GetTick();
 	delay=AutoSkillDelay + GetSkillInfo(skill,4,level)+GetSkillInfo(skill,5,level)*CastTimeRatio
 	AutoSkillCastTimeout=delay+t
-	if AutoSkillCooldown[skill]~=nil then
+	if AutoSkillCooldown[skill]~=nil and not Skills[skill] then
+		-- Only set cooldown if it's not handled by the new system
 		AutoSkillCooldown[skill]=t+GetSkillInfo(skill,9,level)+delay
 	elseif (skill==MH_VOLCANIC_ASH) then --handle the three ash timeouts
 		if (AshTimeout[1] < t) then
@@ -2584,7 +2595,9 @@ function DoSkill(skill,level,target,mode,targx,targy)
 	delay = delay + GetSkillInfo(skill,6,level)
 	AutoSkillTimeout=t+delay
 	if AutoSkillCooldown[skill]~=nil then
-		TraceAI("DoSkill: "..skill.." level:"..level.." target:"..target.." mode:"..targetmode.." delay "..delay.." cooldown: "..AutoSkillCooldown[skill]-GetTick())
+		local remaining = math.floor((AutoSkillCooldown[skill] - GetTick())/1000)
+		TraceAI("DoSkill: "..skill.." level:"..level.." target:"..target.." mode:"..targetmode.." delay "..delay.." cooldown: "..remaining.." seconds")
+		logappend("AAI_COOLDOWN", "Skill " .. skill .. " cooldown set for " .. remaining .. " seconds until tick " .. AutoSkillCooldown[skill])
 	else
 		TraceAI("DoSkill: "..skill.." level:"..level.." target:"..target.." mode:"..targetmode.." delay "..delay)
 	end
@@ -2874,8 +2887,9 @@ function ChooseSkill()
         -- Check if skill is on cooldown
         if AutoSkillCooldown[skill_id] ~= nil and GetTick() < AutoSkillCooldown[skill_id] then
             conditions_met = false
-            TraceAI("Skill " .. skill_id .. " is on cooldown for " .. 
-                   math.floor((AutoSkillCooldown[skill_id] - GetTick())/1000) .. " more seconds")
+            local remaining = math.floor((AutoSkillCooldown[skill_id] - GetTick())/1000)
+            TraceAI("ChooseSkill: Skill " .. skill_id .. " is on cooldown for " .. remaining .. " more seconds")
+            logappend("AAI_COOLDOWN", "ChooseSkill rejected skill " .. skill_id .. " due to cooldown. " .. remaining .. " seconds remaining")
         end
 
         -- Check other conditions
