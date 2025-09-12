@@ -161,7 +161,8 @@ function 	GetTact(t,m)
 		return 0
 	else
 		if t==TACT_SP and x==-1 then
-			x = AttackSkillReserveSP
+			-- x = AttackSkillReserveSP
+			x = 0
 		elseif t==TACT_CHASE then
 			--TraceAI("TactChase called"..GetV(V_SP,MyID).." "..ChaseSPPauseSP.." "..GetTick().." "..math.max(LastMovedTime,LastSPTime).." "..(5000-ChaseSPPauseTime))
 			if GetV(V_SP,MyID) < ChaseSPPauseSP and (GetTick() - math.max(LastMovedTime,LastSPTime)) > (5000-ChaseSPPauseTime) then 

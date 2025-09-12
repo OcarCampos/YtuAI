@@ -582,14 +582,11 @@ function	OnIDLE_ST ()
 		if HPPercent(MyID) >= RecoverHP then
 			TraceAI("Recovery complete. Resuming normal behavior.")
 			IsRecovering = false
+			return -- Wait one cycle before re-engaging in combat.
 		else
-			TraceAI("In recovery mode. HP is still low. Avoiding combat.")
 			-- While recovering, just follow the owner and do nothing else.
-			local distance = GetDistanceFromOwner(MyID)
-			if (distance > DiagonalDist(FollowStayBack + 1) or distance == -1) then
-				MyState = FOLLOW_ST
-				return OnFOLLOW_ST()
-			end
+			MyState = FOLLOW_ST
+			TraceAI("In HP recovery mode, following owner.")
 			return -- Skip the rest of the idle logic to avoid finding a new target.
 		end
 	end
@@ -636,7 +633,10 @@ function	OnIDLE_ST ()
 			end
 			return 
 		end
-		if (HPPercent(MyID) > AggroHP and (SPPercent(MyID) > AggroSP or AggroSP==0) and (ShouldStandby == 0 or StickyStandby ==0) ) then
+		-- For finding new targets
+		-- getting rid of AggroSP
+		-- if (HPPercent(MyID) > AggroHP and (SPPercent(MyID) > AggroSP or AggroSP==0) and (ShouldStandby == 0 or StickyStandby ==0) ) then
+		if (ShouldStandby == 0 or StickyStandby ==0) then
 			aggro=1
 		else
 			aggro=0
@@ -668,7 +668,8 @@ function	OnIDLE_ST ()
 	else
 		distance = GetDistanceFromOwner(MyID)
 	end
-	if (UseIdleWalk~=0 and HPPercent(MyID) > AggroHP and SPPercent(MyID) > math.max(AggroSP,IdleWalkSP)) then -- CHECK
+	-- if (UseIdleWalk~=0 and HPPercent(MyID) > AggroHP and SPPercent(MyID) > math.max(AggroSP,IdleWalkSP)) then -- CHECK
+	if (UseIdleWalk~=0 and SPPercent(MyID) > IdleWalkSP) then -- CHECK
 		if ( distance > GetMoveBounds() or distance == -1) then		-- MYOWNER_OUTSIGNT_IN
 			MyState = FOLLOW_ST
 			TraceAI ("IDLE_ST -> FOLLOW_ST")
@@ -688,7 +689,8 @@ function	OnIDLE_ST ()
 		end
 	end
 	DoAutoBuffs(-2)
-	if UseIdleWalk ~=0 and HPPercent(MyID) > AggroHP and SPPercent(MyID) > math.max(AggroSP,IdleWalkSP) then
+	-- if UseIdleWalk ~=0 and HPPercent(MyID) > AggroHP and SPPercent(MyID) > math.max(AggroSP,IdleWalkSP) then
+	if UseIdleWalk ~=0 and SPPercent(MyID) > IdleWalkSP then
 		TraceAI("IDLE_ST -> IDLEWALK_ST, idle walk mode ="..UseIdleWalk)
 		MyState=IDLEWALK_ST
 	end
@@ -908,8 +910,10 @@ function	OnCHASE_ST ()
 		TraceAI("CHASE_ST: We're not getting any closer - we were "..GetDistanceAPR(MyEnemy,MyPosX[3],MyPosY[3]).." cells away 2 cycles ago, now "..GetDistanceAR(MyID,MyEnemy).." Increment ChaseGiveUpCount")
 	end
 	OnChaseStart()
+	-- oportunistic targeting
 	if OpportunisticTargeting ==1 and MySkill==0 and SuperPassive~=1 and IsRescueTarget(MyEnemy)==0 then
-		if (HPPercent(MyID) > AggroHP and (SPPercent(MyID) > AggroSP or AggroSP==0) and (ShouldStandby == 0 or StickyStandby ==0)) then
+		-- if (HPPercent(MyID) > AggroHP and (SPPercent(MyID) > AggroSP or AggroSP==0) and (ShouldStandby == 0 or StickyStandby ==0)) then
+		if (ShouldStandby == 0 or StickyStandby ==0) then
 			aggro=1
 		else
 			aggro=0
@@ -2818,7 +2822,8 @@ function	OnIDLEWALK_ST ()
 			end
 			return 
 		end
-		if (HPPercent(MyID) > AggroHP and (SPPercent(MyID) > AggroSP or AggroSP==0) and (ShouldStandby == 0 or StickyStandby ==0)) then
+		-- if (HPPercent(MyID) > AggroHP and (SPPercent(MyID) > AggroSP or AggroSP==0) and (ShouldStandby == 0 or StickyStandby ==0)) then
+		if (HPPercent(MyID) > AggroHP and (ShouldStandby == 0 or StickyStandby ==0)) then
 			aggro=1
 		else
 			aggro=0

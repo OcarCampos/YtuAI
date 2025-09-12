@@ -23,8 +23,8 @@
 --------------------------------
 --Basic Settings--
 --------------------------------
-AggroHP                  = 0
-AggroSP                  = 0
+-- AggroHP                  = 0    -- above certain hp % the homunculus will attack. 0 = disabled
+-- AggroSP                  = 0
 OldHomunType             = 2
 UseSkillOnly             = 0 
 UseAttackSkill           = 1
@@ -60,7 +60,6 @@ V_CapriceMobMin          = 2
 -- The minimum SP percentage required to use any skill.
 -- Set to 0 to disable.
 -- Default: 20
--- do we need it if we have a tier logic now?
 V_SkillSPMin             = 20
 
 -- The SP percentage the homunculus must recover to before using skills again
@@ -70,7 +69,7 @@ V_SkillSPMin             = 20
 V_SkillSPRecover         = 40
 
 -- is this being used at all?
-AttackSkillReserveSP     = 400 
+-- AttackSkillReserveSP     = 400 
 --------------------------------
 
 --------------------------------
