@@ -1257,7 +1257,7 @@ function OnATTACK_ST ()
 		if Skills[MySkill] and type(Skills[MySkill].cooldown) == "function" then
 			local cooldown = Skills[MySkill].cooldown(MySkillLevel)
 			AutoSkillCooldown[MySkill] = GetTick() + cooldown
-			TraceAI(GetSkillName(MySkill) .. " used. Cooldown set for " .. (cooldown / 1000) .. " seconds.")
+			TraceAI("Skill " .. MySkill .. " used. Cooldown set for " .. (cooldown / 1000) .. " seconds.")
 		end
 
 		TraceAI("Skill Attack: "..MySkill.." target: "..MyEnemy.." level:"..MySkillLevel)
