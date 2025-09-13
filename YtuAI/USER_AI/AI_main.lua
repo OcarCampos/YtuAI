@@ -81,9 +81,32 @@ AutoSkillCooldown[MH_SUMMON_LEGION]=0
 	and initializes various variables.
 --]]
 function doInit(myid)
-	-- Initialize the summon timer for the suicide tactic
+	-- Load timeouts first to potentially get SummonTick from the file
+	local loadtimesuccess = pcall(loadtimeouts)
+	if loadtimesuccess==false then
+		logappend("AAI_ERROR", "[SUICIDE] Failed to load timeouts for owner "..GetV(V_OWNER,MyID))
+	end
+	
+	-- Initialize the summon timer for the suicide tactic only if not loaded from file
 	if SummonTick == nil then
 		SummonTick = GetTick()
+		logappend("AAI_ERROR", "[SUICIDE] SummonTick initialized to " .. SummonTick)
+		
+		-- Also write to a direct file as backup
+		local outfile = io.open("./AAI_SUICIDE_DEBUG.txt", "a")
+		if outfile then
+			outfile:write(os.date("%c") .. " SummonTick initialized to " .. SummonTick .. "\n")
+			outfile:close()
+		end
+	else
+		logappend("AAI_ERROR", "[SUICIDE] doInit called with SummonTick already set to " .. SummonTick .. " (loaded from file)")
+		
+		-- Also write to a direct file as backup
+		local outfile = io.open("./AAI_SUICIDE_DEBUG.txt", "a")
+		if outfile then
+			outfile:write(os.date("%c") .. " doInit called with SummonTick already set to " .. SummonTick .. " (loaded from file)\n")
+			outfile:close()
+		end
 	end
 
 	local logstring="Checking config..."
@@ -214,16 +237,75 @@ function AdjustCapriceLevel()
 end
 
 function loadtimeouts()
-	if IsHomun(MyID)==1 then
-		dofile(ConfigPath.."data/H_"..GetV(V_OWNER,MyID).."Timeouts.lua")
-	else
-		dofile(ConfigPath.."data/M_"..GetV(V_OWNER,MyID).."Timeouts.lua")
+	-- Create a safe environment for loading the timeout file
+	local env = {}
+	
+	-- Copy all global variables to the environment
+	for k, v in pairs(_G) do
+		env[k] = v
 	end
+	
+	-- Set the environment for the loaded file
+	local filename
+	if IsHomun(MyID)==1 then
+		filename = ConfigPath.."data/H_"..GetV(V_OWNER,MyID).."Timeouts.lua"
+	else
+		filename = ConfigPath.."data/M_"..GetV(V_OWNER,MyID).."Timeouts.lua"
+	end
+	
+	-- Load the file content
+	local f, err = loadfile(filename)
+	if f then
+		setfenv(f, env)
+		f()
+		
+		-- Copy values from the environment back to globals
+		MagTimeout = env.MagTimeout
+		SOffensiveTimeout = env.SOffensiveTimeout
+		SDefensiveTimeout = env.SDefensiveTimeout
+		SOwnerBuffTimeout = env.SOwnerBuffTimeout
+		GuardTimeout = env.GuardTimeout
+		QuickenTimeout = env.QuickenTimeout
+		OffensiveOwnerTimeout = env.OffensiveOwnerTimeout
+		DefensiveOwnerTimeout = env.DefensiveOwnerTimeout
+		OtherOwnerTimeout = env.OtherOwnerTimeout
+		ShouldStandby = env.ShouldStandby
+		RegenTick[1] = env.RegenTick[1]
+		MySpheres = env.MySpheres
+		EleanorMode = env.EleanorMode
+		
+		-- Handle SummonTick if it exists in the file
+		if env.SummonTick then
+			SummonTick = env.SummonTick
+			logappend("AAI_ERROR", "[SUICIDE] Loaded SummonTick from file: " .. SummonTick)
+			
+			-- Also write to a direct file as backup
+			local outfile = io.open("./AAI_SUICIDE_DEBUG.txt", "a")
+			if outfile then
+				outfile:write(os.date("%c") .. " Loaded SummonTick from file: " .. SummonTick .. "\n")
+				outfile:close()
+			end
+		end
+	else
+		logappend("AAI_ERROR", "[SUICIDE] Failed to load timeout file: " .. (err or "unknown error"))
+	end
+	
+	-- Load aggressive relog tracking if enabled
 	if AggressiveRelogTracking==1 then
+		local artFilename
 		if IsHomun(MyID)==1 then
-			dofile(AggressiveRelogPath.."H_"..GetV(V_OWNER,MyID).."Time.lua")
+			artFilename = AggressiveRelogPath.."H_"..GetV(V_OWNER,MyID).."Time.lua"
 		else
-			dofile(AggressiveRelogPath.."M_"..GetV(V_OWNER,MyID).."Time.lua")
+			artFilename = AggressiveRelogPath.."M_"..GetV(V_OWNER,MyID).."Time.lua"
+		end
+		
+		local artf, arterr = loadfile(artFilename)
+		if artf then
+			setfenv(artf, env)
+			artf()
+			LastAITime_ART = env.LastAITime_ART
+		else
+			logappend("AAI_ERROR", "[SUICIDE] Failed to load aggressive relog tracking file: " .. (arterr or "unknown error"))
 		end
 	end
 end
@@ -1958,17 +2040,31 @@ end
     intentionally get defeated by monsters while avoiding killing them.
 --]]
 function OnSUICIDE_ST()
+    -- Log entry to suicide state function
+    logappend("AAI_ERROR", "[SUICIDE] OnSUICIDE_ST called. Current state: " .. MyState .. ", SubState: " .. SuicideSubState)
+    
+    -- Also write to a direct file as backup
+    local outfile = io.open("./AAI_SUICIDE_DEBUG.txt", "a")
+    if outfile then
+        outfile:write(os.date("%c") .. " OnSUICIDE_ST called. Current state: " .. MyState .. ", SubState: " .. SuicideSubState .. "\n")
+        outfile:close()
+    end
+    
     -- If we're in the waiting sub-state
+    local waitTime = 0
     if SuicideSubState == SUICIDE_WAIT_SUBSTATE then
         -- Check if we've waited long enough
-        if GetTick() - SuicideWaitStart >= SuicideWaitDuration then
+        waitTime = GetTick() - SuicideWaitStart
+        if waitTime >= SuicideWaitDuration then
             -- Switch back to attack mode
             SuicideSubState = SUICIDE_ATTACK_SUBSTATE
+            logappend("AAI_ERROR", "[SUICIDE] Wait complete after " .. math.floor(waitTime/1000) .. " seconds. Switching to attack mode.")
             TraceAI("OnSUICIDE_ST: Wait complete. Switching to attack mode.")
         else
             -- Continue waiting
-            TraceAI("OnSUICIDE_ST: Waiting... " .. math.floor((GetTick() - SuicideWaitStart) / 1000) .. 
-                   " of " .. (SuicideWaitDuration / 1000) .. " seconds elapsed.")
+            logappend("AAI_ERROR", "[SUICIDE] Waiting... " .. math.floor(waitTime/1000) .. " of " .. (SuicideWaitDuration/1000) .. " seconds elapsed.")
+            TraceAI("OnSUICIDE_ST: Waiting... " .. math.floor(waitTime/1000) .. 
+                   " of " .. (SuicideWaitDuration/1000) .. " seconds elapsed.")
             return
         end
     end
@@ -2742,7 +2838,7 @@ function UpdateTimeoutFile()
 		OutFile=io.open(ConfigPath.."data/M_"..GetV(V_OWNER,MyID).."Timeouts.lua","w")
 	end
 	if OutFile~=nil then
-		OutFile:write("MagTimeout="..TimeoutConv(MagTimeout).."\nSOffensiveTimeout="..TimeoutConv(SOffensiveTimeout).."\nSDefensiveTimeout="..TimeoutConv(SDefensiveTimeout).."\nSOwnerBuffTimeout="..TimeoutConv(SOwnerBuffTimeout).."\nGuardTimeout="..TimeoutConv(GuardTimeout).."\nQuickenTimeout="..TimeoutConv(QuickenTimeout).."\nOffensiveOwnerTimeout="..TimeoutConv(OffensiveOwnerTimeout).."\nDefensiveOwnerTimeout="..TimeoutConv(DefensiveOwnerTimeout).."\nOtherOwnerTimeout="..TimeoutConv(OtherOwnerTimeout).."\nShouldStandby="..ShouldStandbyx.."\nRegenTick[1]="..RegenTick[1].."\nMySpheres="..MySpheres.."\nEleanorMode="..EleanorMode)
+		OutFile:write("MagTimeout="..TimeoutConv(MagTimeout).."\nSOffensiveTimeout="..TimeoutConv(SOffensiveTimeout).."\nSDefensiveTimeout="..TimeoutConv(SDefensiveTimeout).."\nSOwnerBuffTimeout="..TimeoutConv(SOwnerBuffTimeout).."\nGuardTimeout="..TimeoutConv(GuardTimeout).."\nQuickenTimeout="..TimeoutConv(QuickenTimeout).."\nOffensiveOwnerTimeout="..TimeoutConv(OffensiveOwnerTimeout).."\nDefensiveOwnerTimeout="..TimeoutConv(DefensiveOwnerTimeout).."\nOtherOwnerTimeout="..TimeoutConv(OtherOwnerTimeout).."\nShouldStandby="..ShouldStandbyx.."\nRegenTick[1]="..RegenTick[1].."\nMySpheres="..MySpheres.."\nEleanorMode="..EleanorMode.."\nSummonTick="..SummonTick)
 		OutFile:close()
 	else
 		TraceAI("Failed to update timeout file")
@@ -3281,14 +3377,49 @@ end
 dofile(ConfigPath.."H_Skills.lua")
 
 function AI(myid)
-	-- Economic Suicide Tactic Check
-	if EnableSuicideTactic == 1 and SummonTick and (GetTick() - SummonTick > SuicideTimer * 60000) then
-		-- Reset suicide state variables when entering suicide mode
-		MyState = SUICIDE_ST
-		SuicideSubState = SUICIDE_ATTACK_SUBSTATE
-		SuicideWaitStart = 0
-		SuicideAttackCount = 0
-		TraceAI("Entering suicide mode after " .. math.floor((GetTick() - SummonTick) / 60000) .. " minutes.")
+	-- Debug suicide timer calculation
+	if SummonTick then
+		local currentTick = GetTick()
+		local elapsedTime = currentTick - SummonTick
+		local elapsedMinutes = math.floor(elapsedTime / 60000)
+		local timerThreshold = SuicideTimer * 60000
+		
+		-- Log every 60 seconds to avoid spamming
+		if elapsedTime % 60000 < 1000 then
+			-- Use the known working AAI_ERROR log
+			logappend("AAI_ERROR", "[SUICIDE] Timer check: EnableSuicideTactic=" .. EnableSuicideTactic .. 
+				", Elapsed=" .. elapsedMinutes .. " minutes (" .. elapsedTime .. " ms)" .. 
+				", Threshold=" .. SuicideTimer .. " minutes (" .. timerThreshold .. " ms)")
+			
+			-- Also write to a direct file as backup
+			local outfile = io.open("./AAI_SUICIDE_DEBUG.txt", "a")
+			if outfile then
+				outfile:write(os.date("%c") .. " Timer check: EnableSuicideTactic=" .. EnableSuicideTactic .. 
+					", Elapsed=" .. elapsedMinutes .. " minutes (" .. elapsedTime .. " ms)" .. 
+					", Threshold=" .. SuicideTimer .. " minutes (" .. timerThreshold .. " ms)\n")
+				outfile:close()
+			end
+		end
+		
+		-- Economic Suicide Tactic Check
+		if EnableSuicideTactic == 1 and (elapsedTime > timerThreshold) then
+			-- Reset suicide state variables when entering suicide mode
+			MyState = SUICIDE_ST
+			SuicideSubState = SUICIDE_ATTACK_SUBSTATE
+			SuicideWaitStart = 0
+			SuicideAttackCount = 0
+			logappend("AAI_ERROR", "[SUICIDE] ENTERING SUICIDE MODE after " .. elapsedMinutes .. " minutes")
+            TraceAI("Entering suicide mode after " .. elapsedMinutes .. " minutes.")
+            
+            -- Also write to a direct file as backup
+            local outfile = io.open("./AAI_SUICIDE_DEBUG.txt", "a")
+            if outfile then
+                outfile:write(os.date("%c") .. " ENTERING SUICIDE MODE after " .. elapsedMinutes .. " minutes\n")
+                outfile:close()
+            end
+		end
+	else
+		logappend("AAI_ERROR", "SummonTick is nil! This should not happen after initialization.")
 	end
 
 	MyID = myid
