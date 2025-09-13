@@ -165,11 +165,11 @@ UseAutoHeal             = 0
 --------------------------------
 --Movement & Positioning--
 --------------------------------
-FollowStayBack          = 5
-StationaryAggroDist     = 14
-MobileAggroDist         = 16
+FollowStayBack          = 2
+StationaryAggroDist     = 12
+MobileAggroDist         = 14
 StationaryMoveBounds    = 12
-MobileMoveBounds        = 16
+MobileMoveBounds        = 10
 DoNotUseRest            = 1  -- what is the rest state?
 RestXOff                = 2
 RestYOff                = 0	
