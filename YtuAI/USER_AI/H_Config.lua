@@ -166,9 +166,9 @@ UseAutoHeal             = 0
 --Movement & Positioning--
 --------------------------------
 FollowStayBack          = 2
-StationaryAggroDist     = 12
-MobileAggroDist         = 14
-StationaryMoveBounds    = 12
+StationaryAggroDist     = 10
+MobileAggroDist         = 10
+StationaryMoveBounds    = 10
 MobileMoveBounds        = 10
 DoNotUseRest            = 1  -- what is the rest state?
 RestXOff                = 2
@@ -228,7 +228,7 @@ EnableSuicideTactic      = 1
 -- The time in minutes after which the suicide tactic should be activated.
 -- This should be set to just under 30 minutes.
 -- Default: 28
-SuicideTimer             = 20 
+SuicideTimer             = 1 
 ----------------------------------------------------
 
 ----------------------------------------------------
