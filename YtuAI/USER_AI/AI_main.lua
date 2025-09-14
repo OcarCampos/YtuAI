@@ -60,6 +60,8 @@ LastSeenTick            = nil   -- The last tick when the homunculus was seen ac
 IsRecovering            = false -- Flag to indicate if the homunculus is in a low-HP recovery state.
 IsSPRecovering          = false -- Flag to indicate if the homunculus is in a low-SP recovery state.
 PlayerCommandOverride    = false -- Flag to override AI safety checks for player commands.
+homunculusPreviouslyAlive = false -- Tracks if the homunculus was alive in the previous AI cycle.
+homunculusConfirmedGone = false -- Tracks if the homunculus's absence was confirmed by a DEAD motion state.
 
 -- Reserved command list
 ResCmdList			= List.new()
@@ -85,48 +87,7 @@ AutoSkillCooldown[MH_SUMMON_LEGION]=0
 	and initializes various variables.
 --]]
 function doInit(myid)
-	-- Load timeouts first to potentially get SummonTick from the file
-	local loadtimesuccess = pcall(loadtimeouts)
-	if loadtimesuccess==false then
-		TraceAI("Failed to load timeouts for owner "..GetV(V_OWNER,MyID))
-	end
 	
-	-- Get the current homunculus ID
-	local currentID = myid
-	
-	-- Initialize the homunculus tracking variables
-	if HomuncID == nil then
-		-- First time initialization
-		HomuncID = currentID
-		SummonTick = GetTick()
-		OriginalSummonTick = SummonTick  -- Set the original summon time
-		LastSeenTick = GetTick()
-		TraceAI("New homunculus detected. ID: " .. HomuncID .. ", SummonTick initialized to " .. SummonTick)
-	elseif HomuncID ~= currentID then
-		-- Different homunculus detected, reset the timer
-		TraceAI("Different homunculus detected. Old ID: " .. HomuncID .. ", New ID: " .. currentID)
-		HomuncID = currentID
-		SummonTick = GetTick()
-		OriginalSummonTick = SummonTick  -- Reset original summon time for new homunculus
-		LastSeenTick = GetTick()
-		
-		-- If we were in suicide state, reset it for the new homunculus
-		if MyState == SUICIDE_ST then
-			TraceAI("Resetting SUICIDE_ST state for new homunculus")
-			MyState = IDLE_ST
-		end
-		TraceAI("SummonTick reset to " .. SummonTick)
-	else
-		-- Same homunculus, update LastSeenTick but don't reset SummonTick
-		LastSeenTick = GetTick()
-		TraceAI("Same homunculus detected. ID: " .. HomuncID .. ", SummonTick: " .. SummonTick)
-		
-		-- If OriginalSummonTick is not set, set it to SummonTick
-		if OriginalSummonTick == nil then
-			OriginalSummonTick = SummonTick
-			TraceAI("OriginalSummonTick initialized to " .. OriginalSummonTick)
-		end
-	end
 
 	local logstring="Checking config..."
 	if IsHomun(myid) == 0 then -- if the stupid devs made GetV(V_MERTYPE,id) work i wouldnt need this!
@@ -144,10 +105,6 @@ function doInit(myid)
 	end
 	MyMaxSP=GetV(V_MAXSP,MyID)
 	MyLastSP=GetV(V_SP,MyID)
-	local loadtimesuccess = pcall(loadtimeouts)
-	if loadtimesuccess==false then
-		logstring=logstring.."\nfailed to load timeouts for owner "..GetV(V_OWNER,MyID).." if this is the first time you've used this account with AzzyAI, disregard this message"
-	end
 	if GetV(V_SKILLATTACKRANGE,myid,HVAN_CAPRICE) > 1 then -- it was a vani
 		OldHomunType=VANILMIRTH
 	end
@@ -255,97 +212,6 @@ function AdjustCapriceLevel()
 	end
 end
 
-function loadtimeouts()
-	-- Create a safe environment for loading the timeout file
-	local env = {}
-	
-	-- Copy all global variables to the environment
-	for k, v in pairs(_G) do
-		env[k] = v
-	end
-	
-	-- Set the environment for the loaded file
-	local filename
-	if IsHomun(MyID)==1 then
-		filename = ConfigPath.."data/H_"..GetV(V_OWNER,MyID).."Timeouts.lua"
-	else
-		filename = ConfigPath.."data/M_"..GetV(V_OWNER,MyID).."Timeouts.lua"
-	end
-	
-	-- Load the file content
-	local f, err = loadfile(filename)
-	if f then
-		setfenv(f, env)
-		f()
-		
-		-- Copy values from the environment back to globals
-		MagTimeout = env.MagTimeout
-		SOffensiveTimeout = env.SOffensiveTimeout
-		SDefensiveTimeout = env.SDefensiveTimeout
-		SOwnerBuffTimeout = env.SOwnerBuffTimeout
-		GuardTimeout = env.GuardTimeout
-		QuickenTimeout = env.QuickenTimeout
-		OffensiveOwnerTimeout = env.OffensiveOwnerTimeout
-		DefensiveOwnerTimeout = env.DefensiveOwnerTimeout
-		OtherOwnerTimeout = env.OtherOwnerTimeout
-		ShouldStandby = env.ShouldStandby
-		RegenTick[1] = env.RegenTick[1]
-		MySpheres = env.MySpheres
-		EleanorMode = env.EleanorMode
-		
-		-- Handle homunculus tracking variables if they exist in the file
-		if env.SummonTick then
-			SummonTick = env.SummonTick
-			TraceAI("Loaded SummonTick from file: " .. SummonTick)
-		end
-		
-		-- Load the original summon time if it exists
-		if env.OriginalSummonTick then
-			OriginalSummonTick = env.OriginalSummonTick
-			TraceAI("Loaded OriginalSummonTick from file: " .. OriginalSummonTick)
-		elseif SummonTick then
-			-- If OriginalSummonTick doesn't exist but SummonTick does, use SummonTick
-			OriginalSummonTick = SummonTick
-			TraceAI("OriginalSummonTick initialized from SummonTick: " .. OriginalSummonTick)
-		end
-		
-		if env.LastSeenTick then
-			LastSeenTick = env.LastSeenTick
-			TraceAI("Loaded LastSeenTick from file: " .. LastSeenTick)
-			
-			-- Check if the homunculus has been inactive for too long (over 5 minutes)
-			local currentTick = GetTick()
-			local inactiveTime = currentTick - LastSeenTick
-			if inactiveTime > 300000 then -- 5 minutes in milliseconds
-				TraceAI("Homunculus has been inactive for " .. math.floor(inactiveTime/60000) .. " minutes. Resetting SummonTick.")
-				-- Reset the summon timer as the homunculus might have been resummoned
-				SummonTick = GetTick()
-				OriginalSummonTick = SummonTick  -- Also reset the original summon time
-			end
-		end
-	else
-		TraceAI("Failed to load timeout file: " .. (err or "unknown error"))
-	end
-	
-	-- Load aggressive relog tracking if enabled
-	if AggressiveRelogTracking==1 then
-		local artFilename
-		if IsHomun(MyID)==1 then
-			artFilename = AggressiveRelogPath.."H_"..GetV(V_OWNER,MyID).."Time.lua"
-		else
-			artFilename = AggressiveRelogPath.."M_"..GetV(V_OWNER,MyID).."Time.lua"
-		end
-		
-		local artf, arterr = loadfile(artFilename)
-		if artf then
-			setfenv(artf, env)
-			artf()
-			LastAITime_ART = env.LastAITime_ART
-		else
-			logappend("AAI_ERROR", "[SUICIDE] Failed to load aggressive relog tracking file: " .. (arterr or "unknown error"))
-		end
-	end
-end
 
 --########################################
 --### Friend the merc/homun - old one  ###
@@ -2884,15 +2750,8 @@ function UpdateTimeoutFile()
 		-- Update LastSeenTick before saving
 		LastSeenTick = GetTick()
 		
-		-- Make sure HomuncID is set to the current homunculus ID
-		if HomuncID ~= MyID then
-			logappend("AAI_ERROR", "HOMUNCID_CORRECTION: Fixing HomuncID mismatch in UpdateTimeoutFile. Old ID: " .. HomuncID .. ", New ID: " .. MyID)
-			-- Also update SummonTick and OriginalSummonTick if they're out of sync
-			HomuncID = MyID
-			SummonTick = GetTick()
-			OriginalSummonTick = SummonTick
-			logappend("AAI_ERROR", "SUMMON_CORRECTION: Resetting SummonTick and OriginalSummonTick to " .. SummonTick)
-		end
+		-- Update HomuncID to current ID (for record keeping only, not for detection)
+		HomuncID = MyID
 		
 		OutFile:write("MagTimeout="..TimeoutConv(MagTimeout).."\nSOffensiveTimeout="..TimeoutConv(SOffensiveTimeout).."\nSDefensiveTimeout="..TimeoutConv(SDefensiveTimeout).."\nSOwnerBuffTimeout="..TimeoutConv(SOwnerBuffTimeout).."\nGuardTimeout="..TimeoutConv(GuardTimeout).."\nQuickenTimeout="..TimeoutConv(QuickenTimeout).."\nOffensiveOwnerTimeout="..TimeoutConv(OffensiveOwnerTimeout).."\nDefensiveOwnerTimeout="..TimeoutConv(DefensiveOwnerTimeout).."\nOtherOwnerTimeout="..TimeoutConv(OtherOwnerTimeout).."\nShouldStandby="..ShouldStandbyx.."\nRegenTick[1]="..RegenTick[1].."\nMySpheres="..MySpheres.."\nEleanorMode="..EleanorMode.."\nSummonTick="..SummonTick.."\nOriginalSummonTick="..OriginalSummonTick.."\nHomuncID="..HomuncID.."\nLastSeenTick="..LastSeenTick)
 		OutFile:close()
@@ -3430,54 +3289,81 @@ end
 --### Main AI Function ###
 --########################
 
+function UpdateTimeoutFile()
+    local filename
+    if IsHomun(MyID) == 1 then
+        filename = ConfigPath .. "data/H_" .. GetV(V_OWNER, MyID) .. "Timeouts.lua"
+    else
+        filename = ConfigPath .. "data/M_" .. GetV(V_OWNER, MyID) .. "Timeouts.lua"
+    end
+
+    local OutFile = io.open(filename, "w")
+    if OutFile then
+        OutFile:write("OriginalSummonTick = " .. (OriginalSummonTick or GetTick()) .. "\n")
+        OutFile:write("SummonTick = " .. (SummonTick or GetTick()) .. "\n")
+        -- Add other variables to save as needed
+        OutFile:close()
+        TraceAI("Timeout file updated with new summon data.")
+    else
+        TraceAI("Failed to open timeout file for writing: " .. filename)
+    end
+end
+
 dofile(ConfigPath.."H_Skills.lua")
 
 function AI(myid)
-	-- Update LastSeenTick on each AI cycle
-	LastSeenTick = GetTick()
+
+    -- New, reliable invocation detection logic
+    local isCurrentlyAlive = (myid ~= nil and GetV(V_HP, myid) > 0)
+
+    
+    local isCurrentlyAlive = (myid ~= nil and GetV(V_HP, myid) > 0)
+
+    -- If the homunculus is alive now but wasn't before
+    if isCurrentlyAlive and not homunculusPreviouslyAlive then
+        -- On first summon of a session OR on re-summon after confirmed death, reset timers.
+        if OriginalSummonTick == nil or homunculusConfirmedGone then
+            if OriginalSummonTick == nil then
+                TraceAI("First summon of session detected. Initializing timers.")
+            else
+                TraceAI("New homunculus invocation detected after confirmed absence. Resetting timers.")
+            end
+            
+            -- Reset summon timers
+            SummonTick = GetTick()
+            OriginalSummonTick = SummonTick
+            
+            -- Reset relevant states
+            MyState = IDLE_ST
+            IsRecovering = false
+            IsSPRecovering = false
+            homunculusConfirmedGone = false -- Reset the flag
+
+            logappend("AAI_ERROR", "HOMUNCULUS_INVOCATION: New summon detected. Timers and state reset. Tick: " .. SummonTick)
+            UpdateTimeoutFile()  -- Immediately save the new timers
+        else
+            TraceAI("Homunculus reappeared without confirmed absence (e.g., teleport). Timers not reset.")
+        end
+    end
+
+    -- If the homunculus is NOT alive, check if it just died to set the flag for the next summon
+    if not isCurrentlyAlive then
+        if GetV(V_MOTION, myid) == MOTION_DEAD then
+            TraceAI("Homunculus confirmed gone (MOTION_DEAD). Flag set for next invocation.")
+            homunculusConfirmedGone = true
+        end
+    end
+
+    -- Update the alive status for the next cycle
+    homunculusPreviouslyAlive = isCurrentlyAlive
+
+    -- If the homunculus is not alive, stop further processing for this cycle
+    if not isCurrentlyAlive then
+        return
+    end
 	
-	-- Check if this is a different homunculus than the one we were tracking
-	if HomuncID ~= nil and HomuncID ~= myid then
-		TraceAI("Different homunculus detected in AI cycle. Old ID: " .. HomuncID .. ", New ID: " .. myid)
-		
-		-- Store the old ID before updating
-		local oldID = HomuncID
-		
-		-- Update homunculus tracking variables
-		HomuncID = myid
-		SummonTick = GetTick()
-		OriginalSummonTick = SummonTick  -- Reset original summon time for new homunculus
-		MyState = IDLE_ST  -- Reset to idle state for new homunculus
-		SuicideConfirmedDead = false -- Reset the flag
-		TraceAI("SummonTick and OriginalSummonTick reset to " .. SummonTick)
-		
-		-- Log homunculus ID change to AAI_ERROR.log
-		logappend("AAI_ERROR", "HOMUNCULUS_CHANGE: New homunculus detected. Old ID: " .. oldID 
-			.. ", New ID: " .. myid .. ", SummonTick and OriginalSummonTick reset to " .. SummonTick 
-			.. ", State reset to IDLE_ST, Current time: " .. os.date("%Y-%m-%d %H:%M:%S"))
-	end
-	
-	-- We no longer need this check since we handle it in the HomuncID check above
-	-- This code is kept for reference but is now redundant
-	--[[
-	if SuicideConfirmedDead == true then
-		if GetV(V_MOTION, myid) ~= MOTION_DEAD then
-			-- If homunculus was confirmed dead but is now alive, it must be a new one
-			TraceAI("New homunculus detected after previous one died in SUICIDE_ST. Resetting timers.")
-			HomuncID = myid
-			SummonTick = GetTick()
-			OriginalSummonTick = SummonTick
-			MyState = IDLE_ST  -- Reset to idle state
-			SuicideConfirmedDead = false -- Reset the flag
-			TraceAI("SummonTick and OriginalSummonTick reset to " .. SummonTick)
-			
-			-- Log homunculus resurrection to AAI_ERROR.log
-			logappend("AAI_ERROR", "HOMUNCULUS_RESET: New homunculus detected after confirmed death. ID: " .. myid 
-				.. ", State reset from SUICIDE_ST to IDLE_ST, SummonTick reset to " .. SummonTick 
-				.. ", Current time: " .. os.date("%Y-%m-%d %H:%M:%S"))
-		end
-	end
-	--]]
+	-- The homunculus change detection logic has been moved to the main check above
+	-- to ensure both HomuncID changes and resurrection after death are properly handled
 	
 	-- Ensure we're in the correct state if we should be in suicide mode
 	if OriginalSummonTick then
