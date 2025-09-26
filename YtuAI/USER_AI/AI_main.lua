@@ -88,6 +88,8 @@ AutoSkillCooldown[MH_SUMMON_LEGION]=0
 --]]
 function doInit(myid)
 	
+	-- Load persistent timers from file to survive script reloads.
+    loadtimeouts(myid)
 
 	local logstring="Checking config..."
 	if IsHomun(myid) == 0 then -- if the stupid devs made GetV(V_MERTYPE,id) work i wouldnt need this!
@@ -1105,6 +1107,7 @@ end
 
 
 function OnATTACK_ST ()
+
 	-- Flee if HP is below the configured threshold
 	if PlayerCommandOverride == false and FleeHP > 0 and HPPercent(MyID) < FleeHP then
 		TraceAI("ATTACK_ST -> FOLLOW_ST: HP is low, fleeing to owner and entering recovery mode.")
@@ -1120,7 +1123,9 @@ function OnATTACK_ST ()
 	end
 
 	TraceAI ("OnATTACK_ST MyEnemy: "..MyEnemy.." MyPos "..formatpos(GetV(V_POSITION,MyID)).." ("..GetV(V_MOTION,MyID)..") enemypos "..formatpos(GetV(V_POSITION,MyEnemy)).." ("..GetV(V_MOTION,MyEnemy)..") MyTarget: "..GetV(V_TARGET,MyID))	
-	if (true == IsOutOfSight(MyID,MyEnemy)) then -- first thing's first, if enemy is gone drop it. 
+	
+	-- first thing's first, if enemy is gone drop it. 
+	if (true == IsOutOfSight(MyID,MyEnemy)) then 
 		MyState = IDLE_ST
 		MyEnemy = 0
 		EnemyPosX = {0,0,0,0,0,0,0,0,0,0}
@@ -1129,7 +1134,8 @@ function OnATTACK_ST ()
 		TraceAI ("ATTACK_ST -> IDLE_ST -- target gone")
 		return OnIDLE_ST()
 	end
-	if (MOTION_DEAD == GetV(V_MOTION,MyEnemy)) then   -- Enemy dead? Okay we're done here - drop it. 
+	-- Enemy dead? Okay we're done here - drop it. 
+	if (MOTION_DEAD == GetV(V_MOTION,MyEnemy)) then   
 		MyState = IDLE_ST
 		MyEnemy = 0
 		EnemyPosX = {0,0,0,0,0,0,0,0,0,0}
@@ -1138,6 +1144,12 @@ function OnATTACK_ST ()
 		TraceAI ("ATTACK_ST -> IDLE_ST  Enemy dead")
 		return OnIDLE_ST()
 	end
+	-- If the homunculus itself has died during combat, confirm it's gone.
+    if GetV(V_MOTION, MyID) == MOTION_DEAD then
+        homunculusConfirmedGone = true
+        TraceAI("OnATTACK_ST: Homunculus confirmed dead in combat.")
+        return
+    end
 	local mytarg=GetV(V_TARGET,MyID)
 	if mytarg~=MyEnemy and MyStates[1]==ATTACK_ST then
 		AttackGiveUpCount=AttackGiveUpCount+1
@@ -1947,9 +1959,9 @@ function OnSUICIDE_ST()
     TraceAI("OnSUICIDE_ST called. Current state: " .. MyState .. ", SubState: " .. SuicideSubState)
     
     -- Check if homunculus is dead
-    if GetV(V_MOTION, MyID) == MOTION_DEAD then
+    if GetV(V_MOTION, MyID) == MOTION_DEAD and SuicideAttackCount > 0 then
         -- Mark that the homunculus has died in suicide mode
-        SuicideConfirmedDead = true
+        homunculusConfirmedGone = true
         logappend("AAI_ERROR", "SUICIDE_DEATH: Homunculus ID " .. MyID .. " confirmed dead in SUICIDE_ST state. " 
             .. "Current time: " .. os.date("%Y-%m-%d %H:%M:%S"))
         return
@@ -2735,6 +2747,55 @@ function DoHealingTasks (myid)
 	end
 end
 
+-- Loads previous state and timers from a file
+function loadtimeouts(myid)
+    local filename
+    if IsHomun(myid) == 1 then
+        filename = ConfigPath .. "data/H_" .. GetV(V_OWNER, myid) .. "Timeouts.lua"
+    else
+        filename = ConfigPath .. "data/M_" .. GetV(V_OWNER, myid) .. "Timeouts.lua"
+    end
+
+    logappend("AAI_ERROR", "LOAD_TIMEOUT: Attempting to load timers from: " .. filename)
+
+    local f = io.open(filename, "r")
+    if f then
+        local content = f:read("*a")
+        f:close()
+        
+        -- Extract OriginalSummonTick value
+        local tickValue = content:match("OriginalSummonTick%s*=%s*(%d+)")
+        if tickValue then
+            OriginalSummonTick = tonumber(tickValue)
+            logappend("AAI_ERROR", "LOAD_TIMEOUT: Successfully loaded OriginalSummonTick: " .. OriginalSummonTick)
+        else
+            logappend("AAI_ERROR", "LOAD_TIMEOUT: Could not find OriginalSummonTick in " .. filename)
+        end
+
+		-- Extract SummonTick value
+        local summonTickValue = content:match("SummonTick%s*=%s*(%d+)")
+        if summonTickValue then
+            SummonTick = tonumber(summonTickValue)
+            logappend("AAI_ERROR", "LOAD_TIMEOUT: Successfully loaded SummonTick: " .. SummonTick)
+        else
+            logappend("AAI_ERROR", "LOAD_TIMEOUT: Could not find SummonTick in " .. filename)
+        end
+
+		 -- Extract homunculusConfirmedGone value
+		 local confirmedGoneValue = content:match("homunculusConfirmedGone%s*=%s*(%w+)")
+		 if confirmedGoneValue then
+			 homunculusConfirmedGone = (confirmedGoneValue == "true")
+			 logappend("AAI_ERROR", "LOAD_TIMEOUT: Successfully loaded homunculusConfirmedGone: " .. tostring(homunculusConfirmedGone))
+		 else
+			 logappend("AAI_ERROR", "LOAD_TIMEOUT: Could not find homunculusConfirmedGone in " .. filename)
+		 end
+
+    else
+        logappend("AAI_ERROR", "LOAD_TIMEOUT: Timeout file not found: " .. filename .. ". A new one will be created on next update.")
+    end
+end
+
+-- Saves current state and timers to a file
 function UpdateTimeoutFile()
 	if StickyStandby==2 then
 		ShouldStandbyx=ShouldStandby
@@ -2762,6 +2823,7 @@ function UpdateTimeoutFile()
 	return
 end
 
+-- Converts -1 to 0 for storage in files
 function TimeoutConv(a)
 	if a==-1 then
 		return 0
@@ -2770,6 +2832,7 @@ function TimeoutConv(a)
 	end
 end
 
+-- Handles the PROVOKE_ST state
 function OnPROVOKE_ST()
 	--local skill,level = GetProvokeSkill(MyID)
 	if MyPSkillLevel==nil then
@@ -3301,6 +3364,7 @@ function UpdateTimeoutFile()
     if OutFile then
         OutFile:write("OriginalSummonTick = " .. (OriginalSummonTick or GetTick()) .. "\n")
         OutFile:write("SummonTick = " .. (SummonTick or GetTick()) .. "\n")
+		OutFile:write("homunculusConfirmedGone = " .. tostring(homunculusConfirmedGone) .. "\n")
         -- Add other variables to save as needed
         OutFile:close()
         TraceAI("Timeout file updated with new summon data.")
@@ -3311,22 +3375,35 @@ end
 
 dofile(ConfigPath.."H_Skills.lua")
 
+-- Main AI function
 function AI(myid)
+	-- On script reload, OriginalSummonTick will be nil. Immediately try to load it from the file.
+    -- This is necessary because the game client calls AI() before doInit().
+    if OriginalSummonTick == nil then
+        logappend("AAI_ERROR", "AI_START: OriginalSummonTick is nil. Forcing load from file.")
+        loadtimeouts(myid) -- This will set OriginalSummonTick if the file exists.
+    end
 
-    -- New, reliable invocation detection logic
+	-- Check if the homunculus is currently alive
     local isCurrentlyAlive = (myid ~= nil and GetV(V_HP, myid) > 0)
 
-    
-    local isCurrentlyAlive = (myid ~= nil and GetV(V_HP, myid) > 0)
-
-    -- If the homunculus is alive now but wasn't before
-    if isCurrentlyAlive and not homunculusPreviouslyAlive then
-        -- On first summon of a session OR on re-summon after confirmed death, reset timers.
+    -- Case 1: Homunculus has just disappeared (was alive, now isn't)
+    if not isCurrentlyAlive and homunculusPreviouslyAlive then
+        logappend("AAI_ERROR", "Homunculus has disappeared. Checking for MOTION_DEAD.")
+        -- This is the ONLY place we should check for a generic death.
+        if GetV(V_MOTION, myid) == MOTION_DEAD then
+            logappend("AAI_ERROR", "Homunculus confirmed gone (MOTION_DEAD). Flag set for next invocation.")
+            homunculusConfirmedGone = true
+			UpdateTimeoutFile() -- Immediately save the death confirmation
+        end
+    -- Case 2: Homunculus has just appeared (was not alive, now is)
+    elseif isCurrentlyAlive and not homunculusPreviouslyAlive then
+        -- On first summon OR on re-summon after a confirmed death, reset timers.
         if OriginalSummonTick == nil or homunculusConfirmedGone then
             if OriginalSummonTick == nil then
-                TraceAI("First summon of session detected. Initializing timers.")
+                logappend("AAI_ERROR", "First summon of session detected. Initializing timers.")
             else
-                TraceAI("New homunculus invocation detected after confirmed absence. Resetting timers.")
+                logappend("AAI_ERROR", "New homunculus invocation detected after confirmed absence. Resetting timers.")
             end
             
             -- Reset summon timers
@@ -3340,17 +3417,12 @@ function AI(myid)
             homunculusConfirmedGone = false -- Reset the flag
 
             logappend("AAI_ERROR", "HOMUNCULUS_INVOCATION: New summon detected. Timers and state reset. Tick: " .. SummonTick)
-            UpdateTimeoutFile()  -- Immediately save the new timers
+            UpdateTimeoutFile()
         else
-            TraceAI("Homunculus reappeared without confirmed absence (e.g., teleport). Timers not reset.")
-        end
-    end
-
-    -- If the homunculus is NOT alive, check if it just died to set the flag for the next summon
-    if not isCurrentlyAlive then
-        if GetV(V_MOTION, myid) == MOTION_DEAD then
-            TraceAI("Homunculus confirmed gone (MOTION_DEAD). Flag set for next invocation.")
-            homunculusConfirmedGone = true
+            -- This is a teleport or similar event. Do not reset timers.
+            logappend("AAI_ERROR", "Homunculus reappeared without confirmed absence (e.g., teleport). Timers not reset.")
+            -- Explicitly clear the flag in case it was set by a state function just before teleporting.
+            homunculusConfirmedGone = false
         end
     end
 

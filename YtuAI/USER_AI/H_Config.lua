@@ -19,6 +19,7 @@
 --   - EnableSuicideTactic, SuicideTimer: For the Economic Suicide Tactic.
 --------------------------------------------------------------------------------
 
+-- Last updated: 2025-09-26
 
 --------------------------------
 --Basic Settings--
@@ -166,10 +167,10 @@ UseAutoHeal             = 0
 --Movement & Positioning--
 --------------------------------
 FollowStayBack          = 2
-StationaryAggroDist     = 10
-MobileAggroDist         = 10
-StationaryMoveBounds    = 10
-MobileMoveBounds        = 10
+StationaryAggroDist     = 12
+MobileAggroDist         = 12
+StationaryMoveBounds    = 12
+MobileMoveBounds        = 12
 DoNotUseRest            = 1  -- what is the rest state?
 RestXOff                = 2
 RestYOff                = 0	
@@ -228,7 +229,7 @@ EnableSuicideTactic      = 1
 -- The time in minutes after which the suicide tactic should be activated.
 -- This should be set to just under 30 minutes.
 -- Default: 28
-SuicideTimer             = 1 
+SuicideTimer             = 1   -- return to 20 when done fixing
 ----------------------------------------------------
 
 ----------------------------------------------------
