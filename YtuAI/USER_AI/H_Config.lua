@@ -229,7 +229,7 @@ EnableSuicideTactic      = 1
 -- The time in minutes after which the suicide tactic should be activated.
 -- This should be set to just under 30 minutes.
 -- Default: 28
-SuicideTimer             = 1   -- return to 20 when done fixing
+SuicideTimer             = 20   -- return to 20 when done fixing
 ----------------------------------------------------
 
 ----------------------------------------------------
