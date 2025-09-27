@@ -2756,7 +2756,7 @@ function loadtimeouts(myid)
         filename = ConfigPath .. "data/M_" .. GetV(V_OWNER, myid) .. "Timeouts.lua"
     end
 
-    logappend("AAI_ERROR", "LOAD_TIMEOUT: Attempting to load timers from: " .. filename)
+    -- logappend("AAI_ERROR", "LOAD_TIMEOUT: Attempting to load timers from: " .. filename)
 
     local f = io.open(filename, "r")
     if f then
@@ -2767,7 +2767,7 @@ function loadtimeouts(myid)
         local tickValue = content:match("OriginalSummonTick%s*=%s*(%d+)")
         if tickValue then
             OriginalSummonTick = tonumber(tickValue)
-            logappend("AAI_ERROR", "LOAD_TIMEOUT: Successfully loaded OriginalSummonTick: " .. OriginalSummonTick)
+            -- logappend("AAI_ERROR", "LOAD_TIMEOUT: Successfully loaded OriginalSummonTick: " .. OriginalSummonTick)
         else
             logappend("AAI_ERROR", "LOAD_TIMEOUT: Could not find OriginalSummonTick in " .. filename)
         end
@@ -2776,7 +2776,7 @@ function loadtimeouts(myid)
         local summonTickValue = content:match("SummonTick%s*=%s*(%d+)")
         if summonTickValue then
             SummonTick = tonumber(summonTickValue)
-            logappend("AAI_ERROR", "LOAD_TIMEOUT: Successfully loaded SummonTick: " .. SummonTick)
+            -- logappend("AAI_ERROR", "LOAD_TIMEOUT: Successfully loaded SummonTick: " .. SummonTick)
         else
             logappend("AAI_ERROR", "LOAD_TIMEOUT: Could not find SummonTick in " .. filename)
         end
@@ -2785,7 +2785,7 @@ function loadtimeouts(myid)
 		 local confirmedGoneValue = content:match("homunculusConfirmedGone%s*=%s*(%w+)")
 		 if confirmedGoneValue then
 			 homunculusConfirmedGone = (confirmedGoneValue == "true")
-			 logappend("AAI_ERROR", "LOAD_TIMEOUT: Successfully loaded homunculusConfirmedGone: " .. tostring(homunculusConfirmedGone))
+			 -- logappend("AAI_ERROR", "LOAD_TIMEOUT: Successfully loaded homunculusConfirmedGone: " .. tostring(homunculusConfirmedGone))
 		 else
 			 logappend("AAI_ERROR", "LOAD_TIMEOUT: Could not find homunculusConfirmedGone in " .. filename)
 		 end
@@ -3380,7 +3380,7 @@ function AI(myid)
 	-- On script reload, OriginalSummonTick will be nil. Immediately try to load it from the file.
     -- This is necessary because the game client calls AI() before doInit().
     if OriginalSummonTick == nil then
-        logappend("AAI_ERROR", "AI_START: OriginalSummonTick is nil. Forcing load from file.")
+        -- logappend("AAI_ERROR", "AI_START: OriginalSummonTick is nil. Forcing load from file.")
         loadtimeouts(myid) -- This will set OriginalSummonTick if the file exists.
     end
 
@@ -3389,10 +3389,10 @@ function AI(myid)
 
     -- Case 1: Homunculus has just disappeared (was alive, now isn't)
     if not isCurrentlyAlive and homunculusPreviouslyAlive then
-        logappend("AAI_ERROR", "Homunculus has disappeared. Checking for MOTION_DEAD.")
+        -- logappend("AAI_ERROR", "Homunculus has disappeared. Checking for MOTION_DEAD.")
         -- This is the ONLY place we should check for a generic death.
         if GetV(V_MOTION, myid) == MOTION_DEAD then
-            logappend("AAI_ERROR", "Homunculus confirmed gone (MOTION_DEAD). Flag set for next invocation.")
+            -- logappend("AAI_ERROR", "Homunculus confirmed gone (MOTION_DEAD). Flag set for next invocation.")
             homunculusConfirmedGone = true
 			UpdateTimeoutFile() -- Immediately save the death confirmation
         end
@@ -3400,11 +3400,11 @@ function AI(myid)
     elseif isCurrentlyAlive and not homunculusPreviouslyAlive then
         -- On first summon OR on re-summon after a confirmed death, reset timers.
         if OriginalSummonTick == nil or homunculusConfirmedGone then
-            if OriginalSummonTick == nil then
-                logappend("AAI_ERROR", "First summon of session detected. Initializing timers.")
-            else
-                logappend("AAI_ERROR", "New homunculus invocation detected after confirmed absence. Resetting timers.")
-            end
+            -- if OriginalSummonTick == nil then
+            --     logappend("AAI_ERROR", "First summon of session detected. Initializing timers.")
+            -- else
+            --     logappend("AAI_ERROR", "New homunculus invocation detected after confirmed absence. Resetting timers.")
+            -- end
             
             -- Reset summon timers
             SummonTick = GetTick()
@@ -3416,11 +3416,11 @@ function AI(myid)
             IsSPRecovering = false
             homunculusConfirmedGone = false -- Reset the flag
 
-            logappend("AAI_ERROR", "HOMUNCULUS_INVOCATION: New summon detected. Timers and state reset. Tick: " .. SummonTick)
+            -- logappend("AAI_ERROR", "HOMUNCULUS_INVOCATION: New summon detected. Timers and state reset. Tick: " .. SummonTick)
             UpdateTimeoutFile()
         else
             -- This is a teleport or similar event. Do not reset timers.
-            logappend("AAI_ERROR", "Homunculus reappeared without confirmed absence (e.g., teleport). Timers not reset.")
+            -- logappend("AAI_ERROR", "Homunculus reappeared without confirmed absence (e.g., teleport). Timers not reset.")
             -- Explicitly clear the flag in case it was set by a state function just before teleporting.
             homunculusConfirmedGone = false
         end
@@ -3434,27 +3434,8 @@ function AI(myid)
         return
     end
 	
-	-- The homunculus change detection logic has been moved to the main check above
-	-- to ensure both HomuncID changes and resurrection after death are properly handled
 	
-	-- Ensure we're in the correct state if we should be in suicide mode
-	if OriginalSummonTick then
-		local currentTick = GetTick()
-		local elapsedTime = currentTick - OriginalSummonTick
-		local timerThreshold = SuicideTimer * 60000
-		
-		-- If we should be in suicide mode but aren't, force it
-		if EnableSuicideTactic == 1 and elapsedTime > timerThreshold and MyState ~= SUICIDE_ST then
-			TraceAI("Forcing suicide state - elapsed time: " .. math.floor(elapsedTime/60000) .. " minutes exceeds threshold: " .. SuicideTimer)
-			MyState = SUICIDE_ST
-			SuicideSubState = SUICIDE_ATTACK_SUBSTATE
-			SuicideWaitStart = 0
-			SuicideAttackCount = 0
-			UpdateTimeoutFile()
-		end
-	end
-	
-	-- Debug suicide timer calculation
+	-- Activating Suicide Tactic
 	if OriginalSummonTick then
 		local currentTick = GetTick()
 		local elapsedTime = currentTick - OriginalSummonTick
@@ -3462,41 +3443,29 @@ function AI(myid)
 		local timerThreshold = SuicideTimer * 60000
 		
 		-- Periodic logging to track homunculus state
-		if elapsedTime % 60000 < 1000 then -- Log once per minute
-			logappend("AAI_ERROR", "SUICIDE_STATUS: Homunculus ID " .. myid .. ", State: " .. MyState 
-				.. ", ElapsedTime: " .. elapsedMinutes .. "/" .. SuicideTimer .. " minutes" 
-				.. ", Motion: " .. GetV(V_MOTION, myid)
-				.. ", Current time: " .. os.date("%Y-%m-%d %H:%M:%S"))
-		end
-		
+		-- if elapsedTime % 60000 < 1000 then -- Log once per minute
+		--	logappend("AAI_ERROR", "SUICIDE_STATUS: Homunculus ID " .. myid .. ", State: " .. MyState 
+		--		.. ", ElapsedTime: " .. elapsedMinutes .. "/" .. SuicideTimer .. " minutes" 
+		--		.. ", Motion: " .. GetV(V_MOTION, myid)
+		--		.. ", Current time: " .. os.date("%Y-%m-%d %H:%M:%S"))
+		--end
+
 		-- Economic Suicide Tactic Check
-		if EnableSuicideTactic == 1 and (elapsedTime > timerThreshold) then
+		if EnableSuicideTactic == 1 and elapsedTime > timerThreshold and MyState ~= SUICIDE_ST then
 			-- Log state change with detailed information
 			TraceAI("Entering suicide mode after " .. elapsedMinutes .. " minutes. Threshold: " .. SuicideTimer .. " minutes")
-			
-			-- Log to AAI_ERROR.log for tracking
-			logappend("AAI_ERROR", "SUICIDE_ACTIVATED: Homunculus ID " .. myid .. " entering suicide mode after " 
-				.. elapsedMinutes .. " minutes. Current time: " .. os.date("%Y-%m-%d %H:%M:%S") 
-				.. ", SummonTick: " .. SummonTick .. ", OriginalSummonTick: " .. OriginalSummonTick 
-				.. ", CurrentTick: " .. currentTick .. ", ElapsedTime: " .. elapsedTime .. " ms")
-			
+			-- logappend("AAI_ERROR", "ERROR: FORCING SUICIDE STATE - elapsed time: " .. math.floor(elapsedTime/60000) .. " minutes exceeds threshold: " .. SuicideTimer)
+				
 			-- Reset suicide state variables when entering suicide mode
+			-- Immediately save the state to ensure it persists
 			MyState = SUICIDE_ST
 			SuicideSubState = SUICIDE_ATTACK_SUBSTATE
 			SuicideWaitStart = 0
 			SuicideAttackCount = 0
-			
-			-- Immediately save the state to ensure it persists
 			UpdateTimeoutFile()
-		elseif MyState == SUICIDE_ST then
-			-- Already in suicide mode, nothing to do
-			-- Uncomment for debugging
-			--if elapsedTime % 60000 < 1000 then
-			--	TraceAI("Already in SUICIDE_ST state. Elapsed time: " .. elapsedMinutes .. " minutes")
-			--end
 		end
 	else
-		TraceAI("SummonTick is nil! This should not happen after initialization.")
+		logappend("AAI_ERROR", "SummonTick is nil! This should not happen after initialization.")
 	end
 
 	MyID = myid
